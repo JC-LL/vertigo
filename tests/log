@@ -1,0 +1,458 @@
+-> design_unit
+--> context_clause
+---> context_item
+   context_item FAILED
+--> library_unit
+---> architecture_body
+consuming architecture (architecture)
+consuming test (identifier)
+consuming of (of)
+consuming titi (identifier)
+consuming is (is)
+----> architecture_declarative_part
+-----> block_declarative_item
+     block_declarative_item FAILED
+consuming begin (begin)
+----> architecture_statement_part
+-----> concurrent_statement
+maybe one ? label
+------> label
+
+label->(one of) concurrent_signal_assignment_statement
+-------> concurrent_signal_assignment_statement
+
+concurrent_signal_assignment_statement->(one of) conditional_signal_assignment
+--------> conditional_signal_assignement
+[0;36;49mprocess begin wait until start =[0m
+---------> target
+----------> name
+          name FAILED
+target->(one of) FAILURE for conditional_signal_assignment
+
+conditional_signal_assignement->(one of) selected_signal_assignment
+---------> selected_signal_assignment
+selected_signal_assignment->(one of) FAILURE for selected_signal_assignment
+        conditional_signal_assignement FAILED
+concurrent_signal_assignment_statement->(one of) FAILURE for concurrent_signal_assignment_statement
+
+label->(one of) process_statement
+-------> process_statement
+consuming process (process)
+maybe one ? sensitivity_list
+--------> sensitivity_list
+---------> name
+         name FAILED
+---------> process_declarative_part
+----------> process_declarative_item
+          process_declarative_item FAILED
+consuming begin (begin)
+---------> process_statement_part
+----------> sequential_statement
+maybe one ? label
+-----------> label
+------------> wait_statement
+consuming wait (wait)
+consuming until (until)
+-------------> expression
+--------------> relation
+---------------> shift_expression
+----------------> simple_expression
+-----------------> term
+------------------> factor
+-------------------> primary
+
+primary->(one of) function_call
+--------------------> function_call
+consuming start (identifier)
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+--------------------> literal
+literal->(one of) FAILURE for literal
+
+primary->(one of) aggregate
+--------------------> aggregate
+aggregate->(one of) FAILURE for aggregate
+
+primary->(one of) parenth_expression
+--------------------> parenth_expression
+parenth_expression->(one of) FAILURE for parenth_expression
+
+primary->(one of) name
+--------------------> name
+
+name->(one of) slice_name
+---------------------> slice_name
+consuming start (identifier)
+slice_name->(one of) FAILURE for slice_name
+
+name->(one of) indexed_name
+---------------------> indexed_name
+consuming start (identifier)
+name->(one of) SUCCESS for indexed_name
+primary->(one of) SUCCESS for name
+consuming = (eq)
+---------------> shift_expression
+----------------> simple_expression
+-----------------> term
+------------------> factor
+-------------------> primary
+
+primary->(one of) function_call
+--------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+--------------------> literal
+consuming '1' (char_literal)
+primary->(one of) SUCCESS for literal
+consuming ; (semicolon)
+-----------> sequential_statement
+maybe one ? label
+------------> label
+-------------> loop_statement
+maybe one ? iteration_scheme
+--------------> iteration_scheme
+consuming for (for)
+---------------> parameter_specification
+consuming i (identifier)
+consuming in (in)
+----------------> discrete_range
+
+discrete_range->(one of) range
+-----------------> range
+------------------> simple_expression
+-------------------> term
+--------------------> factor
+---------------------> primary
+
+primary->(one of) function_call
+----------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+----------------------> literal
+consuming 1 (decimal_literal)
+primary->(one of) SUCCESS for literal
+------------------> direction
+consuming to (to)
+------------------> simple_expression
+-------------------> term
+--------------------> factor
+---------------------> primary
+
+primary->(one of) function_call
+----------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+----------------------> literal
+consuming 10 (decimal_literal)
+primary->(one of) SUCCESS for literal
+discrete_range->(one of) SUCCESS for range
+consuming loop (loop)
+--------------> sequence_of_statements
+---------------> sequential_statement
+maybe one ? label
+----------------> label
+-----------------> wait_statement
+consuming wait (wait)
+consuming until (until)
+------------------> expression
+-------------------> relation
+--------------------> shift_expression
+---------------------> simple_expression
+----------------------> term
+-----------------------> factor
+------------------------> primary
+
+primary->(one of) function_call
+-------------------------> function_call
+consuming rising_edge (identifier)
+consuming ( (lparen)
+--------------------------> association_list
+---------------------------> association_element
+----------------------------> name
+
+name->(one of) slice_name
+-----------------------------> slice_name
+consuming clk (identifier)
+slice_name->(one of) FAILURE for slice_name
+
+name->(one of) indexed_name
+-----------------------------> indexed_name
+consuming clk (identifier)
+name->(one of) SUCCESS for indexed_name
+consuming ) (rparen)
+primary->(one of) SUCCESS for function_call
+consuming ; (semicolon)
+consuming end (end)
+consuming loop (loop)
+consuming ; (semicolon)
+-------------> sequential_statement
+maybe one ? label
+--------------> label
+---------------> loop_statement
+maybe one ? iteration_scheme
+----------------> iteration_scheme
+consuming for (for)
+-----------------> parameter_specification
+consuming i (identifier)
+consuming in (in)
+------------------> discrete_range
+
+discrete_range->(one of) range
+-------------------> range
+--------------------> simple_expression
+---------------------> term
+----------------------> factor
+-----------------------> primary
+
+primary->(one of) function_call
+------------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+------------------------> literal
+consuming 1 (decimal_literal)
+primary->(one of) SUCCESS for literal
+--------------------> direction
+consuming to (to)
+--------------------> simple_expression
+---------------------> term
+----------------------> factor
+-----------------------> primary
+
+primary->(one of) function_call
+------------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+------------------------> literal
+consuming 10 (decimal_literal)
+primary->(one of) SUCCESS for literal
+discrete_range->(one of) SUCCESS for range
+consuming loop (loop)
+----------------> sequence_of_statements
+-----------------> sequential_statement
+maybe one ? label
+------------------> label
+consuming data (identifier)
+
+label->(one of) procedure_call_statement
+-------------------> procedure_call_statement
+--------------------> procedure_call
+consuming data (identifier)
+procedure_call_statement->(one of) FAILURE for procedure_call_statement
+
+label->(one of) signal_assignment_statement
+-------------------> signal_assignment_statement
+--------------------> target
+---------------------> name
+
+name->(one of) slice_name
+----------------------> slice_name
+consuming data (identifier)
+slice_name->(one of) FAILURE for slice_name
+
+name->(one of) indexed_name
+----------------------> indexed_name
+consuming data (identifier)
+name->(one of) SUCCESS for indexed_name
+consuming <= (sassign)
+--------------------> waveform
+---------------------> waveform_element
+----------------------> expression
+-----------------------> relation
+------------------------> shift_expression
+-------------------------> simple_expression
+--------------------------> term
+---------------------------> factor
+----------------------------> primary
+
+primary->(one of) function_call
+-----------------------------> function_call
+consuming to_unsigned (identifier)
+consuming ( (lparen)
+------------------------------> association_list
+-------------------------------> association_element
+--------------------------------> name
+
+name->(one of) slice_name
+---------------------------------> slice_name
+consuming i (identifier)
+slice_name->(one of) FAILURE for slice_name
+
+name->(one of) indexed_name
+---------------------------------> indexed_name
+consuming i (identifier)
+name->(one of) SUCCESS for indexed_name
+consuming , (comma)
+-------------------------------> association_element
+--------------------------------> name
+                                name FAILED
+association_element->(one of) FAILURE for function_call
+
+association_list->(one of) literal
+-------------------------------> literal
+literal->(one of) FAILURE for literal
+
+association_list->(one of) aggregate
+-------------------------------> aggregate
+aggregate->(one of) FAILURE for aggregate
+
+association_list->(one of) parenth_expression
+-------------------------------> parenth_expression
+parenth_expression->(one of) FAILURE for parenth_expression
+
+association_list->(one of) name
+-------------------------------> name
+
+name->(one of) slice_name
+--------------------------------> slice_name
+consuming to_unsigned (identifier)
+consuming ( (lparen)
+---------------------------------> discrete_range
+
+discrete_range->(one of) range
+----------------------------------> range
+-----------------------------------> simple_expression
+------------------------------------> term
+-------------------------------------> factor
+--------------------------------------> primary
+
+primary->(one of) function_call
+---------------------------------------> function_call
+consuming i (identifier)
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+---------------------------------------> literal
+literal->(one of) FAILURE for literal
+
+primary->(one of) aggregate
+---------------------------------------> aggregate
+aggregate->(one of) FAILURE for aggregate
+
+primary->(one of) parenth_expression
+---------------------------------------> parenth_expression
+parenth_expression->(one of) FAILURE for parenth_expression
+
+primary->(one of) name
+---------------------------------------> name
+
+name->(one of) slice_name
+----------------------------------------> slice_name
+consuming i (identifier)
+slice_name->(one of) FAILURE for slice_name
+
+name->(one of) indexed_name
+----------------------------------------> indexed_name
+consuming i (identifier)
+name->(one of) SUCCESS for indexed_name
+primary->(one of) SUCCESS for name
+-----------------------------------> direction
+-----------------------------------> simple_expression
+------------------------------------> term
+-------------------------------------> factor
+--------------------------------------> primary
+
+primary->(one of) function_call
+---------------------------------------> function_call
+function_call->(one of) FAILURE for function_call
+
+primary->(one of) literal
+---------------------------------------> literal
+literal->(one of) FAILURE for literal
+
+primary->(one of) aggregate
+---------------------------------------> aggregate
+aggregate->(one of) FAILURE for aggregate
+
+primary->(one of) parenth_expression
+---------------------------------------> parenth_expression
+parenth_expression->(one of) FAILURE for parenth_expression
+
+primary->(one of) name
+---------------------------------------> name
+                                       name FAILED
+primary->(one of) FAILURE for name
+
+factor->(one of) qualified_expression
+factor->(one of) FAILURE for qualified_expression
+
+term->(one of) type_conversion
+term->(one of) FAILURE for type_conversion
+
+simple_expression->(one of) allocator
+simple_expression->(one of) FAILURE for allocator
+                                  range FAILED
+----------------------------------> attribute_name
+-----------------------------------> simple_name
+simple_name->(one of) FAILURE for range
+
+attribute_name->(one of) subtype_indication
+-----------------------------------> subtype_indication
+------------------------------------> resolution_function_name
+type_mark
+maybe one ? constraint
+------------------------------------> constraint
+
+constraint->(one of) range_constraint
+-------------------------------------> range_constraint
+range_constraint->(one of) FAILURE for range_constraint
+
+constraint->(one of) index_constraint
+-------------------------------------> index_constraint
+index_constraint->(one of) FAILURE for index_constraint
+                                    constraint FAILED
+attribute_name->(one of) SUCCESS for subtype_indication
+discrete_range->(one of) FAILURE for slice_name
+
+slice_name->(one of) indexed_name
+---------------------------------> indexed_name
+indexed_name->(one of) FAILURE for indexed_name
+
+slice_name->(one of) simple_name
+---------------------------------> simple_name
+simple_name->(one of) FAILURE for simple_name
+                                slice_name FAILED
+name->(one of) FAILURE for name
+
+association_list->(one of) qualified_expression
+association_list->(one of) FAILURE for qualified_expression
+
+function_call->(one of) type_conversion
+function_call->(one of) FAILURE for type_conversion
+
+primary->(one of) allocator
+primary->(one of) FAILURE for allocator
+                           factor FAILED
+term->(one of) FAILURE for signal_assignment_statement
+
+simple_expression->(one of) variable_assignment_statement
+--------------------------> variable_assignment_statement
+---------------------------> target
+----------------------------> name
+                            name FAILED
+target->(one of) FAILURE for variable_assignment_statement
+                          variable_assignment_statement FAILED
+simple_expression->(one of) FAILURE for process_statement
+
+shift_expression->(one of) component_instantiation_statement
+-------------------------> component_instantiation_statement
+--------------------------> instantiated_unit
+                          instantiated_unit FAILED
+component_instantiation_statement->(one of) FAILURE for component_instantiation_statement
+
+shift_expression->(one of) generate_statement
+-------------------------> generate_statement
+generate_statement->(one of) FAILURE for generate_statement
+                        shift_expression FAILED
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/generic_parser.rb:15:in `abort'
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/generic_parser.rb:15:in `expect'
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/parser.rb:638:in `architecture_body'
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/parser.rb:235:in `library_unit'
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/parser.rb:161:in `design_unit'
+/home/jcll/FORGE/Renater/jclldev/EDA-ESL/VHDL_TOOLS/Vertigo2/lib/parser.rb:30:in `parse'
+run_test_parser.rb:27:in `<main>'
