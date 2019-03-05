@@ -281,6 +281,10 @@ module Vertigo
       ret
     end
 
+    def debug message=""
+      puts message.to_s.center(40,'-')
+    end
+
     def entity_declaration
       methin "entity_declaration"
       entity=Entity.new
@@ -288,9 +292,9 @@ module Vertigo
       entity.name=Ident.new(expect(:identifier))
       expect(:is)
       ret=entity_header()
-      entity.generics=ret[:generics]
+      entity.generics << ret[:generics]
       entity.generics.flatten!
-      entity.ports=ret[:ports]
+      entity.ports << ret[:ports]
       entity.ports.flatten!
       expect :end
       maybe :entity
