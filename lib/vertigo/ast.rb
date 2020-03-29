@@ -1,24 +1,15 @@
+require_relative "ast_vertigo_rkgen"
+
 module Vertigo
-  
+
     class AstNode
     end
 
-    class Root < AstNode
-      attr_accessor :design_units
-      def initialize design_units=[]
-        @design_units=design_units
-      end
-
-      def << e
+    class Root
+      def <<(e)
         @design_units << e
       end
     end
-
-    Entity=Struct.new(:name,:generics,:ports)
-    Generic=Struct.new(:name,:type,:init)
-    Input=Struct.new(:name,:type)
-    Output=Struct.new(:name,:type)
-    Architecture=Struct.new(:name,:entity)
 
     Identifier=Struct.new(:tok) do
       def to_s

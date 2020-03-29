@@ -1,0 +1,28 @@
+- root:
+  - design_unitS
+
+- entity:
+  - name
+  - genericS
+  - portS
+
+- generic:
+  - name
+  - type
+  - init
+
+- input:
+  - name
+  - type
+  - init
+
+- output:
+  - name
+  - type
+  - init
+
+- architecture:
+  - name
+  - entity_name
+  - declS
+  - body

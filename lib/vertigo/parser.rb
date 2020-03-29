@@ -202,7 +202,7 @@ module Vertigo
       expect :architecture
       archi.name=expect(:ident)
       expect :of
-      archi.entity=expect(:ident)
+      archi.entity_name=expect(:ident)
       expect :is
       parse_archi_decls
       parse_archi_body
