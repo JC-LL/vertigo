@@ -4,6 +4,7 @@
 # ============================================================
  
 module Vertigo
+ 
   class AstNode
     def accept(visitor, arg=nil)
        name = self.class.name.split(/::/).last
@@ -55,6 +56,13 @@ module Vertigo
     attr_accessor :name,:entity_name,:decls,:body
     def initialize name=nil,entity_name=nil,decls=[],body=nil
       @name,@entity_name,@decls,@body=name,entity_name,decls,body
+    end
+  end
+   
+  class Ident < AstNode
+    attr_accessor :token
+    def initialize token=nil
+      @token=token
     end
   end
 end # Vertigo

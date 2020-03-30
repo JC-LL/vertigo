@@ -117,7 +117,7 @@ module Vertigo
       #.............................................................
       token :comment           => /\A\-\-(.*)$/
 
-      token :selected_name     => /\w+(\.\w+)+/ # /\S+\w+\.\w+/
+      #   token :selected_name     => /\w+(\.\w+)+/ # /\S+\w+\.\w+/
       token :bit_string_literal => /([bB]|[oO]|[xX])"[^_]\w+"/
       token :ident             => /[a-zA-Z]\w*/
 

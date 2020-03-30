@@ -37,4 +37,8 @@ class GenericParser
     raise "NIY"
   end
 
+  def  next_tokens n=5
+    @tokens[0..n].map{|tok| [tok.kind,tok.val].to_s}.join(',')
+  end
+
 end

@@ -14,12 +14,13 @@ module Vertigo
     end
 
     def compile filename
-      puts "analyzing VHDL file : #{filename}"
+      puts "analyzing VHDL file : #{filename}" unless options[:mute]
       ast=parse(filename)
+      return true if ast
     end
 
     def parse filename
-      @ast=Parser.new.parse filename
+      @ast=Parser.new(options).parse filename
     end
   end
 end

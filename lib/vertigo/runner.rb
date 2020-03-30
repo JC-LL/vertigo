@@ -13,13 +13,19 @@ module Vertigo
     def run arguments
       compiler=Compiler.new
       compiler.options = args = parse_options(arguments)
-      if args[:parse_only]
-        filename=args[:vhdl_file]
-        compiler.parse_2 filename
-      elsif filename=args[:vhdl_file]
-        compiler.compile filename
-      else
-        puts "need a VHDL file : vhdl_tb [options] <file.vhd>"
+      begin
+        if args[:parse_only]
+          filename=args[:vhdl_file]
+          ok=compiler.parse(filename)
+        elsif filename=args[:vhdl_file]
+          ok=compiler.compile(filename)
+        else
+          raise "need a VHDL file : vhdl_tb [options] <file.vhd>"
+        end
+        return ok
+      rescue Exception => e
+        puts e unless compiler.options[:mute]
+        return false
       end
     end
 
@@ -29,7 +35,6 @@ module Vertigo
 
     private
     def parse_options(arguments)
-      header
 
       parser = OptionParser.new
 
@@ -70,12 +75,18 @@ module Vertigo
         options[:verbose] = true
       end
 
+      parser.on("--mute","mute") do
+        options[:mute]=true
+      end
+
       parser.on("-v", "--version", "Show version number") do
         puts VERSION
         exit(true)
       end
 
       parser.parse!(arguments)
+
+      header unless options[:mute]
 
       options[:vhdl_file]=arguments.shift #the remaining c file
 

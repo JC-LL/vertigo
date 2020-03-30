@@ -6,10 +6,12 @@ require_relative 'lexer'
 module Vertigo
 
   class Parser < GenericParser
+    attr_accessor :options
     attr_accessor :lexer,:tokens
     attr_accessor :basename,:filename
 
-    def initialize
+    def initialize options={}
+      @options=options
     end
 
     def lex filename
@@ -23,10 +25,11 @@ module Vertigo
         tokens.reject!{|tok| tok.is_a? [:comment,:newline,:space]}
         return tokens
       rescue Exception=>e
-        puts e.backtrace
-        puts e
-        puts "an error occured during LEXICAL analysis. Sorry. Aborting."
-        raise
+        unless options[:mute]
+          puts e.backtrace
+          puts e
+        end
+        raise "an error occured during LEXICAL analysis. Sorry. Aborting."
       end
     end
 
@@ -55,8 +58,10 @@ module Vertigo
           end
         end
       rescue Exception => e
-        puts e.backtrace
-        puts e
+        unless options[:mute]
+          puts e.backtrace
+          puts e
+        end
         raise
       end
       root
@@ -83,7 +88,7 @@ module Vertigo
 
     def parse_use
       expect :use
-      expect :selected_name
+      parse_term #ENSURE  selected_name
       expect :semicolon
     end
 
@@ -536,7 +541,7 @@ module Vertigo
 
     def parse_entity_instanciation
       expect :entity
-      expect :selected_name
+      parse_term # ENSURE :selected_name
       if showNext.is_a?(:lparen)
         acceptIt
         expect :ident
@@ -693,7 +698,7 @@ module Vertigo
         parse_loop
       when :exit
         parse_exit
-      when :ident,:selected_name
+      when :ident
         parse_assign
       else
         raise "ERROR : parse_seq_stmt : #{pp showNext}"
@@ -892,7 +897,7 @@ module Vertigo
     end
 
     def parse_term
-      if showNext.is_a? [:ident,:selected_name,:decimal_literal,:char_literal,:string_literal,:bit_string_literal,:lparen,:others,:abs,:not,:sub]
+      if showNext.is_a? [:ident,:dot,:decimal_literal,:char_literal,:string_literal,:bit_string_literal,:lparen,:others,:abs,:not,:sub]
         case showNext.kind
         when :ident
           ret=Identifier.new(acceptIt)
@@ -906,18 +911,18 @@ module Vertigo
           ret=acceptIt
         when :string_literal,:bit_string_literal
           ret=acceptIt
-        when :selected_name
-          ret=acceptIt
         when :others
           ret=acceptIt
         else
           puts "cannot parse term : #{showNext}"
         end
       end
-      while showNext && showNext.is_a?([:lbrack,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand])
+      while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand])
         if par=parenthesized?
           #par.name=ret
           ret=par
+        elsif selected_name=selected_name?
+          ret=selected_name
         elsif attribute=attributed?
           #attribute.lhs=ret
           ret=attribute
@@ -950,6 +955,17 @@ module Vertigo
         parse_expression
       end
       expect :rparen
+    end
+
+    def selected_name?
+      while showNext.is_a? [:dot]
+        acceptIt
+        if showNext.is_a? [:ident,:all]
+          acceptIt
+        else
+          raise "ERROR : expecting ident or 'all' at #{showNext.pos}"
+        end
+      end
     end
 
     def parse_unary
