@@ -51,6 +51,10 @@ module Vertigo
         options[:parse_only]=true
       end
 
+      parser.on("--dump", "dump ast") do
+        options[:dump_ast]=true
+      end
+
       parser.on("--pp", "pretty print back source code ") do
         options[:pp] = true
       end

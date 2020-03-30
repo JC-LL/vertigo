@@ -24,6 +24,20 @@ module Vertigo
     end
   end
    
+  class Library < AstNode
+    attr_accessor :name
+    def initialize name=nil
+      @name=name
+    end
+  end
+   
+  class Use < AstNode
+    attr_accessor :library,:package,:element
+    def initialize library=nil,package=nil,element=nil
+      @library,@package,@element=library,package,element
+    end
+  end
+   
   class Entity < AstNode
     attr_accessor :name,:generics,:ports
     def initialize name=nil,generics=[],ports=[]
@@ -52,6 +66,13 @@ module Vertigo
     end
   end
    
+  class InOut < AstNode
+    attr_accessor :name,:type,:init
+    def initialize name=nil,type=nil,init=nil
+      @name,@type,@init=name,type,init
+    end
+  end
+   
   class Architecture < AstNode
     attr_accessor :name,:entity_name,:decls,:body
     def initialize name=nil,entity_name=nil,decls=[],body=nil
@@ -59,10 +80,115 @@ module Vertigo
     end
   end
    
+  class Body < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class Process < AstNode
+    attr_accessor :sensitivity,:decls,:body
+    def initialize sensitivity=nil,decls=[],body=nil
+      @sensitivity,@decls,@body=sensitivity,decls,body
+    end
+  end
+   
+  class Sensitivity < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class SigAssign < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class VarAssign < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class Wait < AstNode
+    attr_accessor :until_,:for_
+    def initialize until_=nil,for_=nil
+      @until_,@for_=until_,for_
+    end
+  end
+   
+  class StdType < AstNode
+    attr_accessor :ident
+    def initialize ident=nil
+      @ident=ident
+    end
+  end
+   
+  class NamedType < AstNode
+    attr_accessor :ident
+    def initialize ident=nil
+      @ident=ident
+    end
+  end
+   
+  class ArrayType < AstNode
+    attr_accessor :name,:discrete_ranges
+    def initialize name=nil,discrete_ranges=[]
+      @name,@discrete_ranges=name,discrete_ranges
+    end
+  end
+   
+  class DiscreteRange < AstNode
+    attr_accessor :lhs,:dir,:rhs
+    def initialize lhs=nil,dir=nil,rhs=nil
+      @lhs,@dir,@rhs=lhs,dir,rhs
+    end
+  end
+   
+  class Waveform < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class CondExpr < AstNode
+    attr_accessor :whens,:else_
+    def initialize whens=[],else_=nil
+      @whens,@else_=whens,else_
+    end
+  end
+   
+  class When < AstNode
+    attr_accessor :expr,:cond
+    def initialize expr=nil,cond=nil
+      @expr,@cond=expr,cond
+    end
+  end
+   
   class Ident < AstNode
-    attr_accessor :token
-    def initialize token=nil
-      @token=token
+    attr_accessor :tok
+    def initialize tok=nil
+      @tok=tok
+    end
+  end
+   
+  class IntLit < AstNode
+    attr_accessor :tok
+    def initialize tok=nil
+      @tok=tok
+    end
+  end
+   
+  class SelectedName < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
     end
   end
 end # Vertigo

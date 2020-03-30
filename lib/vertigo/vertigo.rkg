@@ -1,6 +1,14 @@
 - root:
   - design_unitS
 
+- library:
+  - name
+
+- use:
+  - library
+  - package
+  - element
+
 - entity:
   - name
   - genericS
@@ -21,12 +29,75 @@
   - type
   - init
 
+- InOut:
+  - name
+  - type
+  - init
+
+#====================
 - architecture:
   - name
   - entity_name
   - declS
   - body
 
+- body:
+  - elementS
+
+- process:
+  - sensitivity
+  - declS
+  - body
+
+- sensitivity:
+  - elementS
+
+- sigAssign:
+  - lhs
+  - rhs
+
+- varAssign:
+  - lhs
+  - rhs
+
+- wait:
+  - until_
+  - for_
+#====================
+- stdType:
+  - ident
+
+- namedType:
+  - ident
+
+- ArrayType:
+  - name
+  - discrete_rangeS
+
+- DiscreteRange:
+  - lhs
+  - dir
+  - rhs
+
+# === expressions
+- Waveform:
+  - elementS
+
+- CondExpr:
+  - whenS
+  - else_
+
+- When:
+  - expr
+  - cond
+
 # === terms
 - ident:
-  - token
+  - tok
+
+- intLit:
+  - tok
+
+- selectedName:
+  - lhs
+  - rhs

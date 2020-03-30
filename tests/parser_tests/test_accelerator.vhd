@@ -1,4 +1,4 @@
-library ieee;
+library ieee,std;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.accelerator_pkg.all;
@@ -17,7 +17,7 @@ end accelerator;
 
 architecture rtl of accelerator is
 
-  type regs_t is record 
+  type regs_t is record
     a, b, res : std_logic_vector(31 downto 0);
     ctrl      : std_logic;
     status    : std_logic_vector(1 downto 0);  --busy,done

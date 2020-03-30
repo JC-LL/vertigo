@@ -9,23 +9,15 @@ module Vertigo
       def <<(e)
         @design_units << e
       end
-    end
 
-    Identifier=Struct.new(:tok) do
-      def to_s
-        self.tok.to_s
+      def flatten!
+        @design_units.flatten!
       end
     end
 
-    IntLit=Struct.new(:tok) do
-      def to_s
-        "#{self.tok}"
-      end
-    end
-
-    VectorType=Struct.new(:name,:lhs,:dir,:rhs) do
-      def to_s
-        "#{self.name}(#{self.lhs} #{self.dir} #{self.rhs})"
+    class Body < AstNode
+      def <<(e)
+        @elements << e
       end
     end
 

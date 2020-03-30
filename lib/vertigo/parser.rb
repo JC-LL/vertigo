@@ -64,6 +64,7 @@ module Vertigo
         end
         raise
       end
+      root.flatten!
       root
     end
 
@@ -77,27 +78,39 @@ module Vertigo
     end
 
     def parse_library
+      ret=[]
       expect :library
-      expect :ident
+      ret << lib=Library.new
+      lib.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expeact :ident
+        ret << lib=Library.new
+        lib.name=Ident.new(expect :ident)
       end
       expect :semicolon
+      ret
     end
 
     def parse_use
+      ret=Use.new
       expect :use
-      parse_term #ENSURE  selected_name
+      selected_name=parse_term #ENSURE  selected_name
+      unless selected_name.is_a?(SelectedName)
+        raise "expecting selected name afer 'use'"
+      end
+      ret.library=selected_name.lhs
+      ret.package=selected_name.lhs.lhs
+      ret.element=selected_name.lhs.rhs
       expect :semicolon
+      ret
     end
 
     def parse_entity
-      entity=Entity.new(nil,nil,[])
+      entity=Entity.new
       expect :entity
-      entity.name=expect :ident
+      entity.name=Ident.new(expect :ident)
       expect :is
-      parse_generics?
+      entity.generics=parse_generics?
       if showNext.is_a? :port
         entity.ports=parse_ports
       end
@@ -109,6 +122,7 @@ module Vertigo
     end
 
     def parse_generics?
+      generics=[]
       if showNext.is_a? :generic
         generics=[]
         expect :generic
@@ -121,9 +135,9 @@ module Vertigo
         end
         expect :rparen
         expect :semicolon
-        generics.flatten!
-        return generics
       end
+      generics.flatten!
+      return generics
     end
 
     def parse_generic
@@ -171,35 +185,47 @@ module Vertigo
         dir=dir.kind
       end
       type=parse_type
-      ids.map{|id| dir==:in ? Input.new(id,type) : Output.new(id,type)}
+      ids.map{|id|
+        case dir
+        when :in
+          Input.new(id,type)
+        when :out
+          Output.new(id,type)
+        when :inout
+          InOut.new(id,type)
+        end
+      }
     end
 
     def parse_type
-      type=Identifier.new
       case showNext.kind
       when :ident
-        type.tok=acceptIt
-        if showNext.is_a? :lparen
-          acceptIt
-          parse_array_range_spec
-          while showNext.is_a?(:comma) # multidim array types
-            acceptIt
-            parse_array_range_spec
-          end
-          expect :rparen
-        end
+        type=NamedType.new
+        type.ident=Ident.new(acceptIt)
       else
-        type.tok=acceptIt # natural,...
+        type=StdType.new
+        type.ident=Ident.new(acceptIt) # natural,...
+      end
+      if showNext.is_a? :lparen
+        type=ArrayType.new(type)
+        acceptIt
+        type.discrete_ranges << parse_discrete_range
+        while showNext.is_a?(:comma) # multidim array types
+          acceptIt
+          type.discrete_ranges << parse_discrete_range
+        end
+        expect :rparen
       end
       type
     end
 
-    def parse_array_range_spec
-      parse_expression
+    def parse_discrete_range
+      e1=parse_expression
       if showNext.is_a? [:downto,:to]
-        acceptIt
+        dir=acceptIt
       end
-      parse_expression
+      e2=parse_expression
+      DiscreteRange.new(e1,dir,e2)
     end
 
     def parse_architecture
@@ -209,8 +235,8 @@ module Vertigo
       expect :of
       archi.entity_name=expect(:ident)
       expect :is
-      parse_archi_decls
-      parse_archi_body
+      archi.decls=parse_archi_decls
+      archi.body=parse_archi_body
       archi
     end
 
@@ -454,35 +480,38 @@ module Vertigo
     end
     #======================================
     def parse_archi_body
+      ret=Body.new
       expect :begin
       while !showNext.is_a?(:end)
-        parse_concurrent_stmt
+        ret << parse_concurrent_stmt
       end
       expect :end
       expect :ident
       expect :semicolon
+      ret
     end
 
     def parse_concurrent_stmt
       parse_label?
       case showNext.kind
       when :process
-        parse_process
+        ret=parse_process
       when :entity
-        parse_entity_instanciation
+        ret=parse_entity_instanciation
       when :ident # assign or component instanciation
         if lookahead(2).is_a?(:port)
-          parse_component_instanciation
+          ret=parse_component_instanciation
         else
-          parse_assign
+          ret=parse_assign
         end
       when :component
-        parse_component_instanciation
+        ret=parse_component_instanciation
       when :with
-        parse_select
+        ret=parse_select
       else
         raise "parse_concurrent_stmt : #{pp showNext}"
       end
+      ret
     end
 
     def parse_label?
@@ -493,27 +522,31 @@ module Vertigo
     end
 
     def parse_process
+      ret=Vertigo::Process.new
       expect :process
       if showNext.is_a?(:lparen)
-        parse_sensitivity_list
+        ret.sensitivity=parse_sensitivity_list
       end
-      parse_decls
+      ret.decls=parse_decls
       expect :begin
-      parse_body
+      ret.body=parse_body
       expect :end
       expect :process
       maybe :ident
       expect :semicolon
+      ret
     end
 
     def parse_sensitivity_list
+      ret=Sensitivity.new
       expect :lparen
-      expect :ident
+      ret << Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << Ident.new(expect :ident)
       end
       expect :rparen
+      ret
     end
 
     def parse_component_instanciation
@@ -667,42 +700,45 @@ module Vertigo
     end
     # ============== body
     def parse_body
+      ret=Body.new
       while !showNext.is_a?(:end) and !showNext.is_a?(:elsif) and !showNext.is_a?(:else) and !showNext.is_a?(:when)
-        parse_seq_stmt
+        ret << parse_seq_stmt
       end
+      ret
     end
 
     def parse_seq_stmt
       #puts "parse_seq_stmt line #{showNext.pos.first}"
-      parse_label?
+      label=parse_label?
       case showNext.kind
       when :null
-        parse_null_stmt
+        ret=parse_null_stmt
       when :if
-        parse_if_stmt
+        ret=parse_if_stmt
       when :for
-        parse_for
+        ret=parse_for
       when :while
-        parse_while
+        ret=parse_while
       when :case
-        parse_case
+        ret=parse_case
       when :wait
-        parse_wait
+        ret=parse_wait
       when :report
-        parse_report
+        ret=parse_report
       when :return
-        parse_return
+        ret=parse_return
       when :assert
-        parse_assert
+        ret=parse_assert
       when :loop
-        parse_loop
+        ret=parse_loop
       when :exit
-        parse_exit
+        ret=parse_exit
       when :ident
-        parse_assign
+        ret=parse_assign
       else
         raise "ERROR : parse_seq_stmt : #{pp showNext}"
       end
+      ret
     end
 
     def parse_null_stmt
@@ -711,27 +747,43 @@ module Vertigo
     end
 
     def parse_assign
-      parse_term
+
+      lhs=parse_term
       if showNext.is_a? [:vassign,:leq]
-        acceptIt
+        case showNext.kind
+        when :vassign
+          ret=VarAssign.new(lhs)
+        when :leq
+          ret=SigAssign.new(lhs)
+        end
       end
 
-      parse_expression
+      rhs=parse_expression
 
-      while showNext.is_a?(:comma)
-        acceptIt
-        parse_expression
+      if showNext.is_a?(:comma)
+        ret.rhs=wfm=Waveform.new
+        wfm.elements << rhs
+        while showNext.is_a?(:comma)
+          acceptIt
+          wfm.elements << parse_expression
+        end
       end
 
-      while showNext.is_a?(:when) #cond assign
-        got_when=true
-        acceptIt
-        parse_expression
-        expect :else
-        parse_expression
+      if showNext.is_a?(:when)
+        ret.rhs=cond=CondExpr.new
+        while showNext.is_a?(:when) #cond assign
+          cond.whens << when_=When.new
+          got_when=true
+          acceptIt
+          when_.expr=rhs
+          when_.cond=parse_expression
+          expect :else
+          rhs=parse_expression
+        end
+        cond.else_=rhs
       end
-
       expect :semicolon
+      ret
     end
 
     def parse_if_stmt
@@ -797,19 +849,21 @@ module Vertigo
     end
 
     def parse_wait
+      ret=Wait.new
       expect :wait
       case showNext.kind
       when :until
         acceptIt
-        parse_expression
+        ret.until_=parse_expression
       when :for
         acceptIt
-        parse_expression
+        ret.for_=parse_expression
       when :semicolon
       else
         raise "parse_wait : #{pp showNext}"
       end
       expect :semicolon
+      ret
     end
 
     def parse_report
@@ -900,7 +954,7 @@ module Vertigo
       if showNext.is_a? [:ident,:dot,:decimal_literal,:char_literal,:string_literal,:bit_string_literal,:lparen,:others,:abs,:not,:sub]
         case showNext.kind
         when :ident
-          ret=Identifier.new(acceptIt)
+          ret=Ident.new(acceptIt)
         when :lparen
           ret=parse_parenth
         when :not,:abs
@@ -922,6 +976,7 @@ module Vertigo
           #par.name=ret
           ret=par
         elsif selected_name=selected_name?
+          selected_name.lhs=ret
           ret=selected_name
         elsif attribute=attributed?
           #attribute.lhs=ret
@@ -959,9 +1014,16 @@ module Vertigo
 
     def selected_name?
       while showNext.is_a? [:dot]
+        ret=SelectedName.new(nil,nil)
         acceptIt
         if showNext.is_a? [:ident,:all]
-          acceptIt
+          case showNext.kind
+          when :ident
+            ret.rhs=Ident.new(acceptIt)
+          when :all
+            ret.rhs=acceptIt #all
+          end
+          return ret
         else
           raise "ERROR : expecting ident or 'all' at #{showNext.pos}"
         end

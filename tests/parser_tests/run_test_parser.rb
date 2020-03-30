@@ -40,7 +40,7 @@ def test_all
     puts duration_s+" "+result
   end
   passed+=1  # to account for MUST_FAIL.vhd
-  puts "statistics".center(80,'=')
+  puts "[statistics]".center(80,'=')
   puts "lines        : #{total_lines}"
   puts "total time   : #{total_time.round(3)} s"
   puts "line / s     : #{(total_lines/total_time).round(1)}"
@@ -48,5 +48,5 @@ def test_all
   puts "="*80
 end
 
-puts "Vertigo tester".center(80,'=')
+puts "[Vertigo tester]".center(80,'=')
 test_all

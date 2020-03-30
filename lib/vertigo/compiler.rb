@@ -16,11 +16,16 @@ module Vertigo
     def compile filename
       puts "analyzing VHDL file : #{filename}" unless options[:mute]
       ast=parse(filename)
+      dump_ast if options[:dump_ast]
       return true if ast
     end
 
     def parse filename
       @ast=Parser.new(options).parse filename
+    end
+
+    def dump_ast
+      pp @ast
     end
   end
 end
