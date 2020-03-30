@@ -21,6 +21,12 @@ module Vertigo
       end
     end
 
+    class Sensitivity < AstNode
+      def << e
+        @elements << e
+      end
+    end
+
     class Expression < AstNode
     end
 

@@ -752,8 +752,10 @@ module Vertigo
       if showNext.is_a? [:vassign,:leq]
         case showNext.kind
         when :vassign
+          acceptIt
           ret=VarAssign.new(lhs)
         when :leq
+          acceptIt
           ret=SigAssign.new(lhs)
         end
       end
