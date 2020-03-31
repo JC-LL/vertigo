@@ -62,7 +62,6 @@ module Vertigo
           puts e.backtrace
           puts e
         end
-        raise
       end
       root.flatten!
       root
@@ -115,8 +114,8 @@ module Vertigo
         entity.ports=parse_ports
       end
       expect :end
-      maybe :ident
       maybe :entity
+      maybe :ident
       expect :semicolon
       return entity
     end
@@ -268,6 +267,7 @@ module Vertigo
           raise "ERROR : parse_decls #{pp showNext}"
         end
       end
+      decls.flatten!
       decls
     end
 
@@ -356,16 +356,22 @@ module Vertigo
     end
 
     def parse_signal
+      ret=[]
       expect :signal
-      expect :ident
+      ret << sig=Signal.new
+      sig.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << sig=Signal.new
+        sig.name=Ident.new(expect :ident)
       end
       expect :colon
-      parse_type
-      initialized?
+      type=parse_type
+      ret.map{|sig| sig.type=type}
+      init=initialized?
+      ret.last.init=init
       expect :semicolon
+      ret
     end
 
     def parse_procedure
@@ -492,7 +498,7 @@ module Vertigo
     end
 
     def parse_concurrent_stmt
-      parse_label?
+      label=parse_label?
       case showNext.kind
       when :process
         ret=parse_process
@@ -511,13 +517,16 @@ module Vertigo
       else
         raise "parse_concurrent_stmt : #{pp showNext}"
       end
+      ret.label=label if label
       ret
     end
 
     def parse_label?
       if lookahead(2).is_a?(:colon)
-        expect(:ident)
+        ret=Label.new
+        ret.ident=Ident.new(expect(:ident))
         expect(:colon)
+        return ret
       end
     end
 
@@ -528,6 +537,7 @@ module Vertigo
         ret.sensitivity=parse_sensitivity_list
       end
       ret.decls=parse_decls
+      ret.decls.flatten!
       expect :begin
       ret.body=parse_body
       expect :end
@@ -762,16 +772,15 @@ module Vertigo
 
       rhs=parse_expression
 
-      if showNext.is_a?(:comma)
+      case showNext.kind
+      when :comma
         ret.rhs=wfm=Waveform.new
         wfm.elements << rhs
         while showNext.is_a?(:comma)
           acceptIt
           wfm.elements << parse_expression
         end
-      end
-
-      if showNext.is_a?(:when)
+      when :when
         ret.rhs=cond=CondExpr.new
         while showNext.is_a?(:when) #cond assign
           cond.whens << when_=When.new
@@ -783,33 +792,47 @@ module Vertigo
           rhs=parse_expression
         end
         cond.else_=rhs
+      when :semicolon
+        ret.rhs=rhs
+      else
+        raise "unexpected error in parse assign : #{showNext.val}"
       end
       expect :semicolon
       ret
     end
 
     def parse_if_stmt
+      ret=If.new
       expect :if
-      parse_expression
+      ret.cond=parse_expression
       expect :then
-      parse_body
+      ret.body=parse_body
       while showNext.is_a?(:elsif)
-        parse_elsif
+        ret.elsifs << parse_elsif
       end
       if showNext.is_a?(:else)
-        acceptIt
-        parse_body
+        ret.else_=parse_else
       end
       expect :end
       expect :if
       expect :semicolon
+      ret
     end
 
     def parse_elsif
+      ret=Elsif.new
       expect :elsif
-      parse_expression
+      ret.cond=parse_expression
       expect :then
-      parse_body
+      ret.body=parse_body
+      ret
+    end
+
+    def parse_else
+      ret=Else.new
+      expect :else
+      ret.body=parse_body
+      ret
     end
 
     def parse_for
@@ -973,9 +996,10 @@ module Vertigo
           puts "cannot parse term : #{showNext}"
         end
       end
+
       while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand])
         if par=parenthesized?
-          #par.name=ret
+          par.name=ret
           ret=par
         elsif selected_name=selected_name?
           selected_name.lhs=ret
@@ -987,7 +1011,7 @@ module Vertigo
           timed.lhs=ret
           ret=timed
         elsif after=after?
-          #after.lhs=ret
+          after.lhs=ret
           ret=after
         elsif concat=concat?
           ret=concat
@@ -1079,8 +1103,10 @@ module Vertigo
 
     def after?
       if showNext.is_a?(:after)
+        ret=After.new
         acceptIt
-        parse_expression
+        ret.rhs=parse_expression
+        return ret
       end
     end
 

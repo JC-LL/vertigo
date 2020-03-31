@@ -51,7 +51,7 @@
 
 - sensitivity:
   - elementS
-
+#======= statements =====
 - sigAssign:
   - lhs
   - rhs
@@ -63,7 +63,25 @@
 - wait:
   - until_
   - for_
+
+- If:
+  - cond
+  - body
+  - elsifS
+  - else_
+
+- Elsif:
+  - cond
+  - body
+
+- Else:
+  - body
 #====================
+- Signal:
+  - name
+  - type
+  - init
+
 - stdType:
   - ident
 
@@ -80,6 +98,9 @@
   - rhs
 
 # === expressions
+- Parenth:
+  - expr
+
 - Waveform:
   - elementS
 
@@ -91,6 +112,19 @@
   - expr
   - cond
 
+- Binary:
+  - lhs
+  - op
+  - rhs
+
+- After:
+  - lhs
+  - rhs
+
+- Timed:
+  - lhs
+  - rhs
+
 # === terms
 - ident:
   - tok
@@ -101,3 +135,10 @@
 - selectedName:
   - lhs
   - rhs
+
+- FuncCall:
+  - name
+  - actual_argS
+
+- Label:
+  - ident

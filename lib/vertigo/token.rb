@@ -38,8 +38,9 @@ class Token
     end
   end
 
-  # def accept visitor
-  # end
+  def accept visitor,args=nil
+    self.val
+  end
 
   def self.create str
     Token.new [:id,str,[0,0]]

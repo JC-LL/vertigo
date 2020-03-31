@@ -122,6 +122,34 @@ module Vertigo
     end
   end
    
+  class If < AstNode
+    attr_accessor :cond,:body,:elsifs,:else_
+    def initialize cond=nil,body=nil,elsifs=[],else_=nil
+      @cond,@body,@elsifs,@else_=cond,body,elsifs,else_
+    end
+  end
+   
+  class Elsif < AstNode
+    attr_accessor :cond,:body
+    def initialize cond=nil,body=nil
+      @cond,@body=cond,body
+    end
+  end
+   
+  class Else < AstNode
+    attr_accessor :body
+    def initialize body=nil
+      @body=body
+    end
+  end
+   
+  class Signal < AstNode
+    attr_accessor :name,:type,:init
+    def initialize name=nil,type=nil,init=nil
+      @name,@type,@init=name,type,init
+    end
+  end
+   
   class StdType < AstNode
     attr_accessor :ident
     def initialize ident=nil
@@ -150,6 +178,13 @@ module Vertigo
     end
   end
    
+  class Parenth < AstNode
+    attr_accessor :expr
+    def initialize expr=nil
+      @expr=expr
+    end
+  end
+   
   class Waveform < AstNode
     attr_accessor :elements
     def initialize elements=[]
@@ -171,6 +206,27 @@ module Vertigo
     end
   end
    
+  class Binary < AstNode
+    attr_accessor :lhs,:op,:rhs
+    def initialize lhs=nil,op=nil,rhs=nil
+      @lhs,@op,@rhs=lhs,op,rhs
+    end
+  end
+   
+  class After < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class Timed < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
   class Ident < AstNode
     attr_accessor :tok
     def initialize tok=nil
@@ -189,6 +245,20 @@ module Vertigo
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil
       @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class FuncCall < AstNode
+    attr_accessor :name,:actual_args
+    def initialize name=nil,actual_args=[]
+      @name,@actual_args=name,actual_args
+    end
+  end
+   
+  class Label < AstNode
+    attr_accessor :ident
+    def initialize ident=nil
+      @ident=ident
     end
   end
 end # Vertigo

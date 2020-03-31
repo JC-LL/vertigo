@@ -1,6 +1,7 @@
 require_relative 'ast'
 require_relative 'parser'
 require_relative 'version'
+require_relative 'pretty_printer'
 
 module Vertigo
 
@@ -17,6 +18,7 @@ module Vertigo
       puts "analyzing VHDL file : #{filename}" unless options[:mute]
       ast=parse(filename)
       dump_ast if options[:dump_ast]
+      pretty_print
       return true if ast
     end
 
@@ -26,6 +28,11 @@ module Vertigo
 
     def dump_ast
       pp @ast
+    end
+
+    def pretty_print
+      puts "pretty printing"
+      PrettyPrinter.new.print(ast)
     end
   end
 end
