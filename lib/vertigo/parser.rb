@@ -97,9 +97,9 @@ module Vertigo
       unless selected_name.is_a?(SelectedName)
         raise "expecting selected name afer 'use'"
       end
-      ret.library=selected_name.lhs
-      ret.package=selected_name.lhs.lhs
-      ret.element=selected_name.lhs.rhs
+      ret.library=selected_name.lhs.lhs
+      ret.package=selected_name.lhs.rhs
+      ret.element=selected_name.rhs
       expect :semicolon
       ret
     end
@@ -272,79 +272,106 @@ module Vertigo
     end
 
     def parse_constant
+      ret=[]
       expect :constant
-      expect :ident
+      ret << cst=Constant.new
+      cst.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << cst=Constant.new
+        cst.name=Ident.new(expect :ident)
       end
       expect :colon
-      parse_type
-      initialized?
+      type=parse_type
+      ret.each{|cst| cst.type=type}
+      expect :vassign
+      ret.last.expr=parse_expression
       expect :semicolon
+      ret
     end
 
     def parse_typedecl
+      ret=TypeDecl.new
       expect :type
-      expect :ident
+      ret.name=Ident.new(expect :ident)
       expect :is
       case showNext.kind
       when :lparen
-        acceptIt
-        expect :ident
-        while showNext.is_a?(:comma)
-          acceptIt
-          expect :ident
-        end
-        expect :rparen
+        ret.spec=parse_enum
       when :record
-        parse_record
+        ret.spec=parse_record
       when :array
-        parse_array
+        ret.spec=parse_array
       else
         raise "parse_typedecl : #{pp showNext}"
       end
       expect :semicolon
+      ret
+    end
+
+    def parse_enum
+      ret=Enum.new
+      expect :lparen
+      ret << Ident.new(expect :ident)
+      while showNext.is_a?(:comma)
+        acceptIt
+        ret << Ident.new(expect :ident)
+      end
+      expect :rparen
+      ret
     end
 
     def parse_record
+      ret=Record.new
       expect :record
       while showNext.not_a?(:end)
-        parse_record_item
+        ret.elements << parse_record_items
       end
+      ret.elements.flatten!
       expect :end
       expect :record
+      ret
     end
 
-    def parse_record_item
-      expect :ident
+    def parse_record_items
+      ret=[]
+      ret << ri=RecordItem.new
+      ri.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << ri=RecordItem.new
+        ri.name=Ident.new(expect :ident)
       end
       expect :colon
-      parse_type
+      type=parse_type
+      ret.each{|ri| ri.type=type}
       expect :semicolon
+      ret
     end
 
     def parse_array
+      ret=ArrayType.new
       expect :array
       expect :lparen
-      parse_array_ranges
+      ret.discrete_ranges=parse_array_ranges
       expect :rparen
       expect :of
-      parse_type
+      type=parse_type
+      ret
     end
 
     def parse_array_ranges
-      parse_array_range
+      ret=[]
+      ret << parse_array_range
       while showNext.is_a?(:comma) #multi dimensions
         acceptIt
-        parse_array_range
+        ret << parse_array_range
       end
+      ret
     end
 
     def parse_array_range
+      ret=DiscreteRange.new
       case showNext.kind
       when :natural,:integer
         acceptIt
@@ -353,6 +380,7 @@ module Vertigo
       else
         niy
       end
+      ret
     end
 
     def parse_signal
@@ -583,41 +611,47 @@ module Vertigo
     end
 
     def parse_entity_instanciation
+      ret=EntityInstance.new
       expect :entity
-      parse_term # ENSURE :selected_name
+      ret.full_name=parse_term # ENSURE :selected_name
       if showNext.is_a?(:lparen)
         acceptIt
-        expect :ident
+        ret.arch_name=Ident.new(expect :ident)
         expect :rparen
       end
-      parse_generic_map?
-      parse_port_map
+      ret.generic_map=parse_generic_map?
+      ret.port_map=parse_port_map
       expect :semicolon
+      ret
     end
 
     def parse_port_map
+      ret=PortMap.new
       expect :port
       expect :map
       expect :lparen
       while !showNext.is_a?(:rparen)
-        parse_assoc
+        ret.elements << parse_map
         if showNext.is_a?(:comma)
           acceptIt
         end
       end
       expect :rparen
+      ret
     end
 
-    def parse_assoc
-      expect :ident
+    def parse_map
+      ret=Map.new
+      ret.lhs=parse_expression
       if showNext.is_a?(:imply)
         acceptIt
         if showNext.is_a?(:open)
-          acceptIt
+          ret.rhs=acceptIt
         else
-          parse_expression
+          ret.rhs=parse_expression
         end
       end
+      ret
     end
 
     def parse_select
@@ -752,12 +786,13 @@ module Vertigo
     end
 
     def parse_null_stmt
+      ret=NullStmt.new
       expect :null
       expect :semicolon
+      ret
     end
 
     def parse_assign
-
       lhs=parse_term
       if showNext.is_a? [:vassign,:leq]
         case showNext.kind
@@ -855,22 +890,26 @@ module Vertigo
     end
 
     def parse_case
+      ret=Case.new
       expect :case
-      parse_expression
+      ret.expr=parse_expression
       expect :is
       while showNext.is_a? :when
-        parse_when_case
+        ret << parse_when_case
       end
       expect :end
       expect :case
       expect :semicolon
+      ret
     end
 
     def parse_when_case
+      ret=CaseWhen.new
       expect :when
-      parse_expression
+      ret.expr=parse_expression
       expect :imply
-      parse_body
+      ret.body=parse_body
+      ret
     end
 
     def parse_wait
@@ -1022,25 +1061,32 @@ module Vertigo
 
     # parenthesized expressions (NOT indexed or funcall)
     def parse_parenth
+      ret=Parenth.new
       expect :lparen
-      if showNext.is_a?(:others) # e.g : (others=>'0')
+
+      ret.expr=expr=parse_expression
+      if showNext.is_a?(:imply)
+        ret=Assoc.new
+        ret.lhs=expr
         acceptIt
-        expect :imply
-        parse_expression
-      else
-        parse_expression
+        ret.rhs=parse_expression
       end
 
-      while showNext.is_a?(:comma) # aggregate
-        acceptIt
-        parse_expression
+      if showNext.is_a?(:comma)
+        ret=Aggregate.new
+        ret << expr
+        while showNext.is_a?(:comma) # aggregate
+          acceptIt
+          ret << parse_expression
+        end
       end
       expect :rparen
+      ret
     end
 
     def selected_name?
       while showNext.is_a? [:dot]
-        ret=SelectedName.new(nil,nil)
+        ret=SelectedName.new
         acceptIt
         if showNext.is_a? [:ident,:all]
           case showNext.kind

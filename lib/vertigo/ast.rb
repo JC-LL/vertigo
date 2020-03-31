@@ -28,4 +28,28 @@ module Vertigo
     end
   end
 
+  class Enum < AstNode
+    def << e
+      @elements << e
+    end
+  end
+
+  class Case < AstNode
+    def << e
+      @whens << e
+    end
+  end
+
+  class Aggregate < AstNode
+    def << e
+      @elements << e
+    end
+  end
+
+  class PortMap < AstNode
+    def << e
+      @elements << e
+    end
+  end
+
 end

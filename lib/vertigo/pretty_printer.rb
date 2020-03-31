@@ -84,7 +84,7 @@ module Vertigo
     def visitInOut(inout,args=nil)
       name=inout.name.accept(self,args)
       type=inout.type.accept(self,args)
-      init=inout.init.accept(self,args)
+      init=inout.init.accept(self,args) if inout.init
       "#{name} : inout #{type}#{init};"
     end
 
@@ -99,11 +99,46 @@ module Vertigo
       architecture.decls.each{|decl_| code << decl_.accept(self,args)}
       code.indent=0
       code << "begin"
+      code.newline
       code.indent=2
       code << body
       code.indent=0
       code << "end #{name};"
       code
+    end
+
+    def visitTypeDecl type_decl,args=nil
+      name=type_decl.name.accept(self)
+      type_spec=type_decl.spec.accept(self)
+      "type #{name} is #{type_spec};"
+    end
+
+    def visitEnum enum,args=nil
+      elems=enum.elements.map{|e| e.accept(self)}
+      "(#{elems.join(',')})"
+    end
+
+    def visitRecord rec,args=nil
+      code=Code.new
+      code << "record"
+      code.indent=4
+      rec.elements.map{|e| code << e.accept(self)}
+      code.indent=2
+      code << "end record"
+      code.finalize
+    end
+
+    def visitRecordItem ri,args=nil
+      name=ri.name.accept(self)
+      type=ri.type.accept(self)
+      "#{name} : #{type};"
+    end
+
+    def visitConstant cst,args=nil
+      name=cst.name.accept(self)
+      type=cst.type.accept(self)
+      expr=cst.expr.accept(self)
+      "constant #{name} : #{type} := #{expr};"
     end
 
     def visitSignal signal,args=nil
@@ -157,6 +192,74 @@ module Vertigo
       code
     end
 
+    def visitElse else_,args=nil
+      body=else_.body.accept(self)
+      code=Code.new
+      code << "else"
+      code.indent=2
+      code << body
+      code
+    end
+
+    def visitCase case_,args=nil
+      expr=case_.expr.accept(self)
+      whens=case_.whens.map{|when_| when_.accept(self)}
+      code=Code.new
+      code << "case #{expr} is"
+      code.indent=2
+      case_.whens.map{|when_| code << when_.accept(self)}
+      code.indent=0
+      code << "end case;"
+      code
+    end
+
+    def visitCaseWhen cwhen,args=nil
+      expr=cwhen.expr.accept(self)
+      body=cwhen.body.accept(self)
+      code=Code.new
+      code << "when #{expr} =>"
+      code.indent=2
+      code << body
+      code.indent=0
+      code
+    end
+
+    def visitNullStmt null_,args=nil
+      "null;"
+    end
+    #====================================
+    def visitEntityInstance inst,args=nil
+      code=Code.new
+      label=inst.label.accept(self) if inst.label
+      full_name=inst.full_name.accept(self)
+      arch_name=inst.arch_name.accept(self) if inst.arch_name
+      gen_map  =inst.generic_map.accept(self) if inst.generic_map
+      port_map =inst.port_map.accept(self) if inst.port_map
+      code << "#{label}entity #{full_name}#{arch_name}"
+      code.indent=2
+      code << port_map
+      code.indent=0
+      code.newline
+      code
+    end
+
+    def visitPortMap port_map,args=nil
+      code=Code.new
+      code << "port map("
+      code.indent=2
+      port_map.elements.each{|e| code << e.accept(self)+","}
+      code.indent=0
+      code << ");"
+      code
+    end
+
+    def visitMap map,args=nil
+      lhs=map.lhs.accept(self)
+      rhs=map.rhs.accept(self) if map.rhs
+      rhs=" => #{rhs}" if rhs
+      "#{lhs}#{rhs}"
+    end
+
     def visitProcess(process,args=nil)
       code=Code.new
       label=process.label.accept(self) if process.label
@@ -164,13 +267,13 @@ module Vertigo
       sensitity="(#{sensitity})" if sensitity
       process.decls.each{|decl_| decl_.accept(self,args)}
       body=process.body.accept(self,args)
-      code.newline
       code << "#{label}process#{sensitity}"
       code << "begin"
       code.indent=2
       code << body
       code.indent=0
       code << "end process;"
+      code.newline
       code
     end
 
@@ -271,10 +374,26 @@ module Vertigo
       "#{lhs} #{rhs}"
     end
 
-    def visitFuncCall funcall,arfgs=nil
+    def visitFuncCall funcall,args=nil
       name=funcall.name.accept(self)
       args=funcall.actual_args.map{|arg| arg.accept(self)}.join(',')
       "#{name}(#{args})"
+    end
+
+    def visitParenth parenth,args=nil
+      expr=parenth.expr.accept(self)
+      "(#{expr})"
+    end
+
+    def visitAggregate aggregate,args=nil
+      elems=aggregate.elements.map{|e| e.accept(self)}
+      "(#{elems.join(',')})"
+    end
+
+    def visitAssoc assoc,args=nil
+      lhs=assoc.lhs.accept(self)
+      rhs=assoc.rhs.accept(self)
+      "(#{lhs} => #{rhs})"
     end
 
   end

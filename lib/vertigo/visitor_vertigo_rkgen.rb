@@ -76,6 +76,22 @@ module Vertigo
       sensitivity_.elements.each{|element_| element_.accept(self,args)}
     end
      
+    def visitEntityInstance(entityinstance_,args=nil)
+      entityinstance_.full_name.accept(self,args)
+      entityinstance_.arch_name.accept(self,args)
+      entityinstance_.generic_map.accept(self,args)
+      entityinstance_.port_map.accept(self,args)
+    end
+     
+    def visitPortMap(portmap_,args=nil)
+      portmap_.elements.each{|element_| element_.accept(self,args)}
+    end
+     
+    def visitMap(map_,args=nil)
+      map_.lhs.accept(self,args)
+      map_.rhs.accept(self,args)
+    end
+     
     def visitSigAssign(sigassign_,args=nil)
       sigassign_.lhs.accept(self,args)
       sigassign_.rhs.accept(self,args)
@@ -105,6 +121,44 @@ module Vertigo
      
     def visitElse(else_,args=nil)
       else_.body.accept(self,args)
+    end
+     
+    def visitCase(case_,args=nil)
+      case_.expr.accept(self,args)
+      case_.whens.each{|when_| when_.accept(self,args)}
+    end
+     
+    def visitCaseWhen(casewhen_,args=nil)
+      casewhen_.expr.accept(self,args)
+      casewhen_.body.accept(self,args)
+    end
+     
+    def visitNullStmt(nullstmt_,args=nil)
+      nullstmt_.dummy.accept(self,args)
+    end
+     
+    def visitTypeDecl(typedecl_,args=nil)
+      typedecl_.name.accept(self,args)
+      typedecl_.spec.accept(self,args)
+    end
+     
+    def visitEnum(enum_,args=nil)
+      enum_.elements.each{|element_| element_.accept(self,args)}
+    end
+     
+    def visitRecord(record_,args=nil)
+      record_.elements.each{|element_| element_.accept(self,args)}
+    end
+     
+    def visitRecordItem(recorditem_,args=nil)
+      recorditem_.name.accept(self,args)
+      recorditem_.type.accept(self,args)
+    end
+     
+    def visitConstant(constant_,args=nil)
+      constant_.name.accept(self,args)
+      constant_.type.accept(self,args)
+      constant_.expr.accept(self,args)
     end
      
     def visitSignal(signal_,args=nil)
@@ -184,8 +238,17 @@ module Vertigo
       funccall_.actual_args.each{|actual_arg_| actual_arg_.accept(self,args)}
     end
      
+    def visitAggregate(aggregate_,args=nil)
+      aggregate_.elements.each{|element_| element_.accept(self,args)}
+    end
+     
     def visitLabel(label_,args=nil)
       label_.ident.accept(self,args)
+    end
+     
+    def visitAssoc(assoc_,args=nil)
+      assoc_.lhs.accept(self,args)
+      assoc_.rhs.accept(self,args)
     end
   end # visitor
 end # Vertigo

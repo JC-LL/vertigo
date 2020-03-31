@@ -101,6 +101,27 @@ module Vertigo
     end
   end
    
+  class EntityInstance < AstNode
+    attr_accessor :full_name,:arch_name,:generic_map,:port_map
+    def initialize full_name=nil,arch_name=nil,generic_map=nil,port_map=nil
+      @full_name,@arch_name,@generic_map,@port_map=full_name,arch_name,generic_map,port_map
+    end
+  end
+   
+  class PortMap < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class Map < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
   class SigAssign < AstNode
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil
@@ -140,6 +161,62 @@ module Vertigo
     attr_accessor :body
     def initialize body=nil
       @body=body
+    end
+  end
+   
+  class Case < AstNode
+    attr_accessor :expr,:whens
+    def initialize expr=nil,whens=[]
+      @expr,@whens=expr,whens
+    end
+  end
+   
+  class CaseWhen < AstNode
+    attr_accessor :expr,:body
+    def initialize expr=nil,body=nil
+      @expr,@body=expr,body
+    end
+  end
+   
+  class NullStmt < AstNode
+    attr_accessor :dummy
+    def initialize dummy=nil
+      @dummy=dummy
+    end
+  end
+   
+  class TypeDecl < AstNode
+    attr_accessor :name,:spec
+    def initialize name=nil,spec=nil
+      @name,@spec=name,spec
+    end
+  end
+   
+  class Enum < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class Record < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class RecordItem < AstNode
+    attr_accessor :name,:type
+    def initialize name=nil,type=nil
+      @name,@type=name,type
+    end
+  end
+   
+  class Constant < AstNode
+    attr_accessor :name,:type,:expr
+    def initialize name=nil,type=nil,expr=nil
+      @name,@type,@expr=name,type,expr
     end
   end
    
@@ -255,10 +332,24 @@ module Vertigo
     end
   end
    
+  class Aggregate < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
   class Label < AstNode
     attr_accessor :ident
     def initialize ident=nil
       @ident=ident
+    end
+  end
+   
+  class Assoc < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
     end
   end
 end # Vertigo

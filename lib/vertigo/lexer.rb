@@ -134,6 +134,8 @@ module Vertigo
       token :lparen            => /\A\(/
       token :rparen            => /\A\)/
 
+      token :neq               => /\A\/\=/ # here for precedence
+
       # arith
       token :add               => /\A\+/
       token :sub               => /\A\-/
@@ -145,7 +147,6 @@ module Vertigo
 
       # logical
       token :eq                => /\A\=/
-      token :neq               => /\A\/\=/
       token :gte               => /\A\>\=/
       token :gt                => /\A\>/
       token :leq               => /\A\<\=/
