@@ -113,7 +113,8 @@ module Vertigo
       keyword 'warning'
       keyword 'error'
       keyword 'note'
-
+      keyword 'true'
+      keyword 'false'
       #.............................................................
       token :comment           => /\A\-\-(.*)$/
 

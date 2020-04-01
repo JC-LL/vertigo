@@ -4,6 +4,7 @@ module Vertigo
 
   class AstNode
     attr_accessor :label
+    attr_accessor :pos
   end
 
   class Root < AstNode
@@ -28,7 +29,7 @@ module Vertigo
     end
   end
 
-  class Enum < AstNode
+  class EnumDecl < AstNode
     def << e
       @elements << e
     end
@@ -47,6 +48,12 @@ module Vertigo
   end
 
   class PortMap < AstNode
+    def << e
+      @elements << e
+    end
+  end
+
+  class GenericMap < AstNode
     def << e
       @elements << e
     end

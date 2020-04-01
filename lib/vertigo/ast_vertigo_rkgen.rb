@@ -136,7 +136,28 @@ module Vertigo
     end
   end
    
+  class ComponentDecl < AstNode
+    attr_accessor :name,:generics,:ports
+    def initialize name=nil,generics=[],ports=[]
+      @name,@generics,@ports=name,generics,ports
+    end
+  end
+   
+  class ComponentInstance < AstNode
+    attr_accessor :name,:generic_map,:port_map
+    def initialize name=nil,generic_map=nil,port_map=nil
+      @name,@generic_map,@port_map=name,generic_map,port_map
+    end
+  end
+   
   class PortMap < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
+  class GenericMap < AstNode
     attr_accessor :elements
     def initialize elements=[]
       @elements=elements
@@ -147,6 +168,27 @@ module Vertigo
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil
       @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class AttributeDecl < AstNode
+    attr_accessor :name,:type
+    def initialize name=nil,type=nil
+      @name,@type=name,type
+    end
+  end
+   
+  class AttributeSpec < AstNode
+    attr_accessor :name,:entity_spec,:expr
+    def initialize name=nil,entity_spec=nil,expr=nil
+      @name,@entity_spec,@expr=name,entity_spec,expr
+    end
+  end
+   
+  class EntitySpec < AstNode
+    attr_accessor :elements,:entity_class
+    def initialize elements=[],entity_class=nil
+      @elements,@entity_class=elements,entity_class
     end
   end
    
@@ -227,6 +269,20 @@ module Vertigo
     end
   end
    
+  class WithSelect < AstNode
+    attr_accessor :with_expr,:assigned,:selected_whens
+    def initialize with_expr=nil,assigned=nil,selected_whens=[]
+      @with_expr,@assigned,@selected_whens=with_expr,assigned,selected_whens
+    end
+  end
+   
+  class SelectedWhen < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
   class TypeDecl < AstNode
     attr_accessor :name,:spec
     def initialize name=nil,spec=nil
@@ -234,14 +290,14 @@ module Vertigo
     end
   end
    
-  class Enum < AstNode
+  class EnumDecl < AstNode
     attr_accessor :elements
     def initialize elements=[]
       @elements=elements
     end
   end
    
-  class Record < AstNode
+  class RecordDecl < AstNode
     attr_accessor :elements
     def initialize elements=[]
       @elements=elements
@@ -255,6 +311,20 @@ module Vertigo
     end
   end
    
+  class ArrayDecl < AstNode
+    attr_accessor :dim_decls,:type
+    def initialize dim_decls=[],type=nil
+      @dim_decls,@type=dim_decls,type
+    end
+  end
+   
+  class ArrayDimDecl < AstNode
+    attr_accessor :type_mark,:range
+    def initialize type_mark=nil,range=nil
+      @type_mark,@range=type_mark,range
+    end
+  end
+   
   class Constant < AstNode
     attr_accessor :name,:type,:expr
     def initialize name=nil,type=nil,expr=nil
@@ -263,6 +333,13 @@ module Vertigo
   end
    
   class Signal < AstNode
+    attr_accessor :name,:type,:init
+    def initialize name=nil,type=nil,init=nil
+      @name,@type,@init=name,type,init
+    end
+  end
+   
+  class Variable < AstNode
     attr_accessor :name,:type,:init
     def initialize name=nil,type=nil,init=nil
       @name,@type,@init=name,type,init

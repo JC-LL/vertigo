@@ -78,13 +78,39 @@
   - generic_map
   - port_map
 
+- ComponentDecl:
+  - name
+  - genericS
+  - portS
+
+- ComponentInstance:
+  - name
+  - generic_map
+  - port_map
+
 - PortMap:
+  - elementS
+
+- GenericMap:
   - elementS
 
 - Map:
   - lhs
   - rhs
 
+- AttributeDecl:
+  - name
+  - type
+
+- AttributeSpec:
+  - name
+  - entity_spec
+  - expr
+
+- EntitySpec:
+  - elementS
+  - entity_class
+  
 #======= statements =====
 
 - SigAssign:
@@ -131,20 +157,37 @@
 - Report:
   - expr
   - severity
+
+- WithSelect:
+  - with_expr
+  - assigned
+  - selected_whenS
+
+- SelectedWhen:
+  - lhs
+  - rhs
 #====================
 - TypeDecl:
   - name
   - spec
 
-- Enum:
+- EnumDecl:
   - elementS
 
-- Record:
+- RecordDecl:
   - elementS
 
 - RecordItem:
   - name
   - type
+
+- ArrayDecl:
+  - dim_declS
+  - type
+
+- ArrayDimDecl:
+  - type_mark
+  - range
 
 - Constant:
   - name
@@ -152,6 +195,11 @@
   - expr
 
 - Signal:
+  - name
+  - type
+  - init
+
+- Variable:
   - name
   - type
   - init

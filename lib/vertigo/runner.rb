@@ -55,8 +55,12 @@ module Vertigo
         options[:dump_ast]=true
       end
 
-      parser.on("--pp", "pretty print back source code ") do
+      parser.on("--pp", "pretty print back source code, in the console") do
         options[:pp] = true
+      end
+
+      parser.on("--pp_to_file", "pretty print back source code, to a _pp.vhd file") do
+        options[:pp_to_file] = true
       end
 
       parser.on("--ast", "abstract syntax tree (AST)") do

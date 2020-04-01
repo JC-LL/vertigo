@@ -15,13 +15,19 @@ module Vertigo
     end
 
     def compile filename
-      puts "=> analyzing VHDL file : #{filename}" unless options[:mute]
-      @basename=File.basename(filename,File.extname(filename))
-      ast=parse(filename)
-      puts "=> parsed successfully. Good"
-      dump_ast if options[:dump_ast]
-      pretty_print
-      return true if ast
+      begin
+        puts "=> analyzing VHDL file : #{filename}" unless options[:mute]
+        @basename=File.basename(filename,File.extname(filename))
+        ast=parse(filename)
+        puts "=> parsed successfully. Good" unless options[:mute]
+        dump_ast if options[:dump_ast]
+        pretty_print if options[:pp] or options[:pp_to_file]
+        return true
+      rescue Exception => e
+        puts e.backtrace unless options[:mute]
+        puts e unless options[:mute]
+        raise
+      end
     end
 
     def parse filename
@@ -33,11 +39,17 @@ module Vertigo
     end
 
     def pretty_print
-      puts "=> pretty printing"
-      code=PrettyPrinter.new.print(ast)
-      file=code.save_as "#{@basename}_pp.vhd"
-      puts "   - saved as #{file}"
-      puts code.finalize
+      puts "=> pretty printing" unless options[:mute]
+      begin
+        code=PrettyPrinter.new.print(ast)
+        file=code.save_as "#{@basename}_pp.vhd"
+        puts "   - saved as #{file}" unless options[:mute]
+        puts code.finalize if options[:pp]
+      rescue Exception => e
+        puts e.backtrace if options[:pp]
+        puts e if options[:pp]
+        raise "pp error"
+      end
     end
   end
 end

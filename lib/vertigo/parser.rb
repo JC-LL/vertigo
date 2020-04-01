@@ -62,6 +62,7 @@ module Vertigo
           puts e.backtrace
           puts e
         end
+        raise
       end
       root.flatten!
       root
@@ -206,7 +207,9 @@ module Vertigo
         type.ident=Ident.new(acceptIt) # natural,...
       end
       if showNext.is_a? :lparen
-        type=ArrayType.new(type)
+        old=type
+        type=ArrayType.new
+        type.name=old
         acceptIt
         type.discrete_ranges << parse_discrete_range
         while showNext.is_a?(:comma) # multidim array types
@@ -301,7 +304,7 @@ module Vertigo
       when :record
         ret.spec=parse_record
       when :array
-        ret.spec=parse_array
+        ret.spec=parse_array_decl
       else
         raise "parse_typedecl : #{pp showNext}"
       end
@@ -310,7 +313,7 @@ module Vertigo
     end
 
     def parse_enum
-      ret=Enum.new
+      ret=EnumDecl.new
       expect :lparen
       ret << Ident.new(expect :ident)
       while showNext.is_a?(:comma)
@@ -322,7 +325,7 @@ module Vertigo
     end
 
     def parse_record
-      ret=Record.new
+      ret=RecordDecl.new
       expect :record
       while showNext.not_a?(:end)
         ret.elements << parse_record_items
@@ -349,34 +352,34 @@ module Vertigo
       ret
     end
 
-    def parse_array
-      ret=ArrayType.new
+    def parse_array_decl
+      ret=ArrayDecl.new
       expect :array
       expect :lparen
-      ret.discrete_ranges=parse_array_ranges
+      ret.dim_decls=parse_array_dim_decls
       expect :rparen
       expect :of
-      type=parse_type
+      ret.type=parse_type
       ret
     end
 
-    def parse_array_ranges
+    def parse_array_dim_decls
       ret=[]
-      ret << parse_array_range
+      ret << parse_array_dim_decl
       while showNext.is_a?(:comma) #multi dimensions
         acceptIt
-        ret << parse_array_range
+        ret << parse_array_dim_decl
       end
       ret
     end
 
-    def parse_array_range
-      ret=DiscreteRange.new
+    def parse_array_dim_decl
+      ret=ArrayDimDecl.new
       case showNext.kind
       when :natural,:integer
-        acceptIt
+        ret.type_mark=acceptIt
         expect :range
-        expect :urange
+        ret.range=expect(:urange)
       else
         niy
       end
@@ -462,7 +465,7 @@ module Vertigo
       expect :ident
       if showNext.is_a?(:lparen)
         acceptIt
-        parse_formal_parameters
+        parse_formal_args
         expect :rparen
       end
 
@@ -482,45 +485,69 @@ module Vertigo
     end
 
     def parse_component_decl
+      ret=ComponentDecl.new
       expect :component
-      expect :ident
+      ret.name=Ident.new(expect :ident)
       maybe :is
-      parse_generics?
-      parse_ports
+      ret.generics=parse_generics?
+      ret.ports=parse_ports
       expect :end
       expect :component
       expect :semicolon
+      ret
     end
 
     def parse_attribute
       expect :attribute
-      expect :ident
+      name=Ident.new(expect :ident)
       case showNext.kind
       when :colon #declaration
+        ret=AttributeDecl.new
+        ret.name=name
         acceptIt
-        parse_type
+        ret.type=parse_type
       when :of # specification
+        ret=AttributeSpec.new
+        ret.name=name
         acceptIt
-        expect :ident
-        expect :colon
-        consume_to :semicolon
+        ret.entity_spec=parse_entity_spec
+        expect :is
+        ret.expr=parse_expression
       else
-        raise "ERROR : parse_attribute #{showNext}"
+        raise "ERROR : parse attribute error at line #{showNext.line} #{showNext}"
       end
       expect :semicolon
+      ret
+    end
+
+    def parse_entity_spec
+      ret=EntitySpec.new
+      ret.elements << Ident.new(expect :ident)
+      while showNext.is_a?(:comma)
+        acceptit
+        ret.elements << Ident.new(expect :ident)
+      end
+      expect :colon
+      ret.entity_class=acceptIt # entity,procedure, architecture etc...
+      ret
     end
 
     def parse_variable
+      ret=[] << var=Variable.new
       expect :variable
-      expect :ident
+      var.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << var=Variable.new
+        var.name=Ident.new(expect :ident)
       end
       expect :colon
-      parse_type
-      initialized?
+      type=parse_type
+      ret.each{|var| var.type=type}
+      init=initialized?
+      ret.last.init=init
       expect :semicolon
+      ret
     end
     #======================================
     def parse_archi_body
@@ -598,26 +625,31 @@ module Vertigo
     end
 
     def parse_component_instanciation
+      ret=ComponentInstance.new
       maybe :component
-      expect :ident
-      parse_generic_map?
-      parse_port_map
+      ret.name=expect :ident
+      ret.generic_map=parse_generic_map?
+      ret.port_map=parse_port_map
       expect :semicolon
+      ret
     end
 
     def parse_generic_map?
       if showNext.is_a? :generic
+        ret=GenericMap.new
         acceptIt
         expect :map
         expect :lparen
         while !showNext.is_a?(:rparen)
-          parse_assoc
+          ret << parse_map
           if showNext.is_a?(:comma)
             acceptIt
           end
         end
         expect :rparen
+        return ret
       end
+      nil
     end
 
     def parse_entity_instanciation
@@ -665,23 +697,27 @@ module Vertigo
     end
 
     def parse_select
+      ret=WithSelect.new
       expect :with
-      parse_expression
+      ret.with_expr=parse_expression
       expect :select
-      parse_term
+      ret.assigned=parse_term
       expect :leq
-      parse_selected_when
+      ret.selected_whens << parse_selected_when
       while showNext.is_a?(:comma)
         acceptIt
-        parse_selected_when
+        ret.selected_whens << parse_selected_when
       end
       expect :semicolon
+      ret
     end
 
     def parse_selected_when
-      parse_expression
+      ret=SelectedWhen.new
+      ret.lhs=parse_expression
       expect :when
-      parse_expression
+      ret.rhs=parse_expression
+      ret
     end
     #============== package
 
@@ -1001,19 +1037,8 @@ module Vertigo
     end
 
     # ============================= expression ===============================
-    COMPARISON_OP=[:eq,:neq,:gt,:gte,:lt,:lte,:leq]
-    def parse_expression
-      t1=parse_additive
-      while more? && showNext.is_a?(COMPARISON_OP)
-        op=acceptIt
-        t2=parse_additive
-        t1=Binary.new(t1,op,t2)
-      end
-      return t1
-    end
-
     ADDITIV_OP  =[:add,:sub, :or, :xor] #xor ?
-    def parse_additive
+    def parse_expression
       t1=parse_multiplicative
       while more? && showNext.is_a?(ADDITIV_OP)
         op=acceptIt #full token
@@ -1025,8 +1050,19 @@ module Vertigo
 
     MULTITIV_OP=[:mul,:div,:mod,:and,:shiftr,:shiftl]
     def parse_multiplicative
-      t1=parse_term
+      t1=parse_comparative
       while more? && showNext.is_a?(MULTITIV_OP)
+        op=acceptIt
+        t2=parse_comparative
+        t1=Binary.new(t1,op,t2)
+      end
+      return t1
+    end
+
+    COMPARISON_OP=[:eq,:neq,:gt,:gte,:lt,:lte,:leq]
+    def parse_comparative
+      t1=parse_term
+      while more? && showNext.is_a?(COMPARISON_OP)
         op=acceptIt
         t2=parse_term
         t1=Binary.new(t1,op,t2)
@@ -1034,8 +1070,9 @@ module Vertigo
       return t1
     end
 
+
     def parse_term
-      if showNext.is_a? [:ident,:dot,:decimal_literal,:char_literal,:string_literal,:bit_string_literal,:lparen,:others,:abs,:not,:sub]
+      if showNext.is_a? [:ident,:dot,:decimal_literal,:char_literal,:string_literal,:true,:false,:bit_string_literal,:lparen,:others,:abs,:not,:sub]
         case showNext.kind
         when :ident
           ret=Ident.new(acceptIt)
@@ -1048,6 +1085,8 @@ module Vertigo
         when :char_literal
           ret=acceptIt
         when :string_literal,:bit_string_literal
+          ret=acceptIt
+        when :true,:false
           ret=acceptIt
         when :others
           ret=acceptIt
@@ -1084,7 +1123,6 @@ module Vertigo
     def parse_parenth
       ret=Parenth.new
       expect :lparen
-
       ret.expr=expr=parse_expression
       if showNext.is_a?(:imply)
         ret=Assoc.new
@@ -1096,8 +1134,10 @@ module Vertigo
       if showNext.is_a?(:comma)
         ret=Aggregate.new
         ret << expr
+
         while showNext.is_a?(:comma) # aggregate
           acceptIt
+          ret.pos=showNext.pos #indication for pp
           ret << parse_expression
         end
       end

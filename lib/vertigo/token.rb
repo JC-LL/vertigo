@@ -57,6 +57,10 @@ class Token
   def clone
     Token.new([@kind,@val,@pos])
   end
+
+  def line
+    pos.first
+  end
 end
 
 ONE  = Token.new [:int_lit,'1',['na','na']]
