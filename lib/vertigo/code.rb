@@ -24,15 +24,23 @@ class Code
   end
 
   def finalize
-    return @lines.join("\n") if @lines.any?
+    str=@lines.join("\n") if @lines.any?
+    str=clean(str)
+    return str if @lines.any?
     ""
+  end
+
+  def clean str
+    str=str.gsub(/;[\s\n]*;/ ,';')
+    str=str.gsub(/;[\s\n]*\)/ ,')')
+    str=str.gsub(/,[\s\n]*\)/,')')
   end
 
   def newline
     @lines << " "
   end
 
-  def save_as filename,verbose=true,sep="\n"
+  def save_as filename,verbose=true
     str=self.finalize
     File.open(filename,'w'){|f| f.puts(str)}
     return filename
@@ -42,5 +50,8 @@ class Code
     @lines.size
   end
 
+  def last
+    @lines.last
+  end
 
 end

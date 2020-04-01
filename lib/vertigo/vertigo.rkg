@@ -33,6 +33,26 @@
   - name
   - type
   - init
+#===================
+- Package:
+  - name
+  - declS
+
+- PackageBody:
+  - name
+  - declS
+
+- ProcedureDecl:
+  - name
+  - formal_argS
+  - declS
+  - body
+
+- FormalArg:
+  - signal
+  - direction
+  - name
+  - type
 
 #====================
 - architecture:
@@ -51,8 +71,23 @@
 
 - sensitivity:
   - elementS
+
+- EntityInstance:
+  - full_name
+  - arch_name
+  - generic_map
+  - port_map
+
+- PortMap:
+  - elementS
+
+- Map:
+  - lhs
+  - rhs
+
 #======= statements =====
-- sigAssign:
+
+- SigAssign:
   - lhs
   - rhs
 
@@ -76,16 +111,55 @@
 
 - Else:
   - body
+
+- Case:
+  - expr
+  - whenS
+
+- CaseWhen:
+  - expr
+  - body
+
+- NullStmt:
+  - dummy
+
+- Assert:
+  - cond
+  - report
+  - severity
+
+- Report:
+  - expr
+  - severity
 #====================
+- TypeDecl:
+  - name
+  - spec
+
+- Enum:
+  - elementS
+
+- Record:
+  - elementS
+
+- RecordItem:
+  - name
+  - type
+
+- Constant:
+  - name
+  - type
+  - expr
+
 - Signal:
   - name
   - type
   - init
 
-- stdType:
+- StdType:
   - ident
 
-- namedType:
+- NamedType:
   - ident
 
 - ArrayType:
@@ -125,6 +199,14 @@
   - lhs
   - rhs
 
+- Attributed:
+  - lhs
+  - rhs
+
+- Concat:
+  - lhs
+  - rhs
+
 # === terms
 - ident:
   - tok
@@ -140,5 +222,12 @@
   - name
   - actual_argS
 
+- Aggregate:
+  - elementS
+
 - Label:
   - ident
+
+- Assoc:
+  - lhs
+  - rhs

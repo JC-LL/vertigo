@@ -10,8 +10,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_signed.all;
+use ieee.numeric_std.all;
 
 -- define constant, signal and procedure within package for ALU
 
@@ -39,9 +38,9 @@ package body ALU_package is
     procedure load_data (signal A, B: out std_logic_vector(1 downto 0);
 			 signal Sel: out std_logic_vector(1 downto 0) ) is
     begin
-	A <= sig_A;
-	B <= sig_B;
-	Sel <= sig_Sel;
+	    A <= sig_A;
+	    B <= sig_B;
+	    Sel <= sig_Sel;
     end load_data;
 
     procedure check_data (signal Sel: out std_logic_vector( 1 downto 0)) is

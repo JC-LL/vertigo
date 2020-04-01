@@ -73,6 +73,34 @@ module Vertigo
     end
   end
    
+  class Package < AstNode
+    attr_accessor :name,:decls
+    def initialize name=nil,decls=[]
+      @name,@decls=name,decls
+    end
+  end
+   
+  class PackageBody < AstNode
+    attr_accessor :name,:decls
+    def initialize name=nil,decls=[]
+      @name,@decls=name,decls
+    end
+  end
+   
+  class ProcedureDecl < AstNode
+    attr_accessor :name,:formal_args,:decls,:body
+    def initialize name=nil,formal_args=[],decls=[],body=nil
+      @name,@formal_args,@decls,@body=name,formal_args,decls,body
+    end
+  end
+   
+  class FormalArg < AstNode
+    attr_accessor :signal,:direction,:name,:type
+    def initialize signal=nil,direction=nil,name=nil,type=nil
+      @signal,@direction,@name,@type=signal,direction,name,type
+    end
+  end
+   
   class Architecture < AstNode
     attr_accessor :name,:entity_name,:decls,:body
     def initialize name=nil,entity_name=nil,decls=[],body=nil
@@ -182,6 +210,20 @@ module Vertigo
     attr_accessor :dummy
     def initialize dummy=nil
       @dummy=dummy
+    end
+  end
+   
+  class Assert < AstNode
+    attr_accessor :cond,:report,:severity
+    def initialize cond=nil,report=nil,severity=nil
+      @cond,@report,@severity=cond,report,severity
+    end
+  end
+   
+  class Report < AstNode
+    attr_accessor :expr,:severity
+    def initialize expr=nil,severity=nil
+      @expr,@severity=expr,severity
     end
   end
    
@@ -298,6 +340,20 @@ module Vertigo
   end
    
   class Timed < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class Attributed < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class Concat < AstNode
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil
       @lhs,@rhs=lhs,rhs

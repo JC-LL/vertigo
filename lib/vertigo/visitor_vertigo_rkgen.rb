@@ -55,6 +55,30 @@ module Vertigo
       inout_.init.accept(self,args)
     end
      
+    def visitPackage(package_,args=nil)
+      package_.name.accept(self,args)
+      package_.decls.each{|decl_| decl_.accept(self,args)}
+    end
+     
+    def visitPackageBody(packagebody_,args=nil)
+      packagebody_.name.accept(self,args)
+      packagebody_.decls.each{|decl_| decl_.accept(self,args)}
+    end
+     
+    def visitProcedureDecl(proceduredecl_,args=nil)
+      proceduredecl_.name.accept(self,args)
+      proceduredecl_.formal_args.each{|formal_arg_| formal_arg_.accept(self,args)}
+      proceduredecl_.decls.each{|decl_| decl_.accept(self,args)}
+      proceduredecl_.body.accept(self,args)
+    end
+     
+    def visitFormalArg(formalarg_,args=nil)
+      formalarg_.signal.accept(self,args)
+      formalarg_.direction.accept(self,args)
+      formalarg_.name.accept(self,args)
+      formalarg_.type.accept(self,args)
+    end
+     
     def visitArchitecture(architecture_,args=nil)
       architecture_.name.accept(self,args)
       architecture_.entity_name.accept(self,args)
@@ -135,6 +159,17 @@ module Vertigo
      
     def visitNullStmt(nullstmt_,args=nil)
       nullstmt_.dummy.accept(self,args)
+    end
+     
+    def visitAssert(assert_,args=nil)
+      assert_.cond.accept(self,args)
+      assert_.report.accept(self,args)
+      assert_.severity.accept(self,args)
+    end
+     
+    def visitReport(report_,args=nil)
+      report_.expr.accept(self,args)
+      report_.severity.accept(self,args)
     end
      
     def visitTypeDecl(typedecl_,args=nil)
@@ -218,6 +253,16 @@ module Vertigo
     def visitTimed(timed_,args=nil)
       timed_.lhs.accept(self,args)
       timed_.rhs.accept(self,args)
+    end
+     
+    def visitAttributed(attributed_,args=nil)
+      attributed_.lhs.accept(self,args)
+      attributed_.rhs.accept(self,args)
+    end
+     
+    def visitConcat(concat_,args=nil)
+      concat_.lhs.accept(self,args)
+      concat_.rhs.accept(self,args)
     end
      
     def visitIdent(ident_,args=nil)

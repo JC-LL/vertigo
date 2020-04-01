@@ -403,48 +403,58 @@ module Vertigo
     end
 
     def parse_procedure
+      ret=ProcedureDecl.new
       expect :procedure
-      expect :ident
+      ret.name=Ident.new(expect :ident)
       if showNext.is_a?(:lparen)
         acceptIt
-        parse_formal_parameters
+        ret.formal_args=parse_formal_args
         expect :rparen
       end
       if showNext.is_a?(:is)
         acceptIt
-        parse_decls
+        ret.decls=parse_decls
         expect :begin
-        parse_body
+        ret.body=parse_body
         expect :end
         maybe :procedure
         maybe :ident
       end
       expect :semicolon
+      ret
     end
 
-    def parse_formal_parameters
+    def parse_formal_args
       ret=[]
-      parse_formal_parameter
+      ret << parse_formal_arg
       while showNext.is_a?(:semicolon)
         acceptIt
-        ret << parse_formal_parameter
+        ret << parse_formal_arg
       end
       ret.flatten!
       ret
     end
 
-    def parse_formal_parameter
-      maybe :signal
-      expect :ident
+    def parse_formal_arg
+      ret=[]
+      is_signal=(maybe :signal)
+      ret << fp=FormalArg.new
+      fp.name=Ident.new(expect :ident)
       while showNext.is_a?(:comma)
         acceptIt
-        expect :ident
+        ret << fp=FormalArg.new
+        fp.name=Ident.new(expect :ident)
       end
       expect :colon
       if showNext.is_a? [:in,:out,:inout]
-        acceptIt
+        direction=acceptIt
       end
-      parse_type
+      type=parse_type
+      ret.each{|fp|
+        fp.direction=direction
+        fp.type=type
+      }
+      ret
     end
 
     def parse_function
@@ -679,38 +689,44 @@ module Vertigo
       expect :package
       case showNext.kind
       when :ident
-        parse_package_decl
+        ret=parse_package_decl
       when :body
-        parse_package_body
+        ret=parse_package_body
       else
         raise "ERROR : parse_package"
       end
     end
 
     def parse_package_decl
-      expect :ident
+      ret=Package.new
+      ret.name=Ident.new(expect :ident)
       expect :is
       while !showNext.is_a?(:end)
-        parse_decls
+        ret.decls << parse_decls
       end
+      ret.decls.flatten!
       expect :end
       maybe :package
       maybe :ident
       expect :semicolon
+      ret
     end
 
     def parse_package_body
+      ret=PackageBody.new
       expect :body
-      expect :ident
+      ret.name=Ident.new(expect :ident)
       expect :is
       while !showNext.is_a?(:end)
-        parse_decls
+        ret.decls << parse_decls
       end
+      ret.decls.flatten!
       expect :end
       maybe :package
       maybe :body
       maybe :ident
       expect :semicolon
+      ret
     end
 
     # ============= configuration
@@ -931,20 +947,19 @@ module Vertigo
     end
 
     def parse_report
-      if showNext.is_a?(:assert)
-        parse_assert
-      end
+      report=Report.new
       expect :report
-      parse_expression
+      report.expr=parse_expression
       if showNext.is_a?(:severity)
         acceptIt
         if showNext.is_a? severity=[:warning,:note,:error]
-          acceptIt
+          report.severity=acceptIt
         else
           raise "ERROR : expecting one of #{severity.join(',')}. Got : #{showNext.val}"
         end
       end
       expect :semicolon
+      return report
     end
 
     def parse_return
@@ -954,8 +969,13 @@ module Vertigo
     end
 
     def parse_assert
+      ret=Assert.new
       expect :assert
-      parse_expression
+      ret.cond=parse_expression
+      if showNext.is_a?(:report)
+        ret.report=parse_report
+      end
+      ret
     end
 
     def parse_loop #unusual loop...end loop
@@ -1044,7 +1064,7 @@ module Vertigo
           selected_name.lhs=ret
           ret=selected_name
         elsif attribute=attributed?
-          #attribute.lhs=ret
+          attribute.lhs=ret
           ret=attribute
         elsif timed=timed?
           timed.lhs=ret
@@ -1053,6 +1073,7 @@ module Vertigo
           after.lhs=ret
           ret=after
         elsif concat=concat?
+          concat.lhs=ret
           ret=concat
         end
       end
@@ -1143,7 +1164,7 @@ module Vertigo
     def initialized?
       if showNext.is_a?(:vassign)
         acceptIt
-        parse_expression
+        return parse_expression
       end
     end
 
@@ -1158,14 +1179,18 @@ module Vertigo
 
     def concat?
       if showNext.is_a?(:ampersand)
+        ret=Concat.new
         acceptIt
-        parse_expression
+        ret.rhs=parse_expression
+        return ret
       end
     end
 
     def attributed?
       if showNext.is_a?(:attribute_literal)
-        acceptIt
+        ret=Attributed.new
+        ret.rhs=acceptIt
+        return ret
       end
     end
   end
