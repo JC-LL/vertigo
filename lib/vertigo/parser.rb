@@ -1095,7 +1095,7 @@ module Vertigo
         end
       end
 
-      while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand])
+      while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand,:tick])
         if par=parenthesized?
           par.name=ret
           ret=par
@@ -1114,6 +1114,9 @@ module Vertigo
         elsif concat=concat?
           concat.lhs=ret
           ret=concat
+        elsif qualified=qualified?
+          qualified.lhs=ret
+          ret=qualified
         end
       end
       ret
@@ -1230,6 +1233,15 @@ module Vertigo
       if showNext.is_a?(:attribute_literal)
         ret=Attributed.new
         ret.rhs=acceptIt
+        return ret
+      end
+    end
+
+    def qualified?
+      if showNext.is_a?(:tick)
+        acceptIt
+        ret=Qualified.new
+        ret.rhs=parse_expression
         return ret
       end
     end

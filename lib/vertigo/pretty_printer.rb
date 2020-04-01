@@ -330,13 +330,9 @@ module Vertigo
       assigned=withselect_.assigned.accept(self,args)
 
       code=Code.new
-      code << "with #{expr} select"
+      code << "with #{expr} select #{assigned} <="
       code.indent=2
-      first_when=withselect_.selected_whens.first.accept(self)
-      till_arrow="#{assigned} <= "
-      code << "#{till_arrow}#{first_when}"
-      code.indent=till_arrow.size
-      withselect_.selected_whens[1..-1].each{|selected_when_| code << selected_when_.accept(self,args)}
+      withselect_.selected_whens.each{|selected_when_| code << selected_when_.accept(self,args)}
       code.indent=0
       code.last << ";"
       code
@@ -574,6 +570,12 @@ module Vertigo
       lhs=concat_.lhs.accept(self,args)
       rhs=concat_.rhs.accept(self,args)
       "#{lhs} & #{rhs}"
+    end
+
+    def visitQualified(qualified_,args=nil)
+      lhs=qualified_.lhs.accept(self,args)
+      rhs=qualified_.rhs.accept(self,args)
+      "#{lhs}'#{rhs}"
     end
 
     def visitFuncCall funcall,args=nil

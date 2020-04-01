@@ -42,7 +42,7 @@ module Vertigo
       puts "=> pretty printing" unless options[:mute]
       begin
         code=PrettyPrinter.new.print(ast)
-        file=code.save_as "#{@basename}_pp.vhd"
+        file=code.save_as "#{@basename}_pp.vhd" if options[:pp_to_file]
         puts "   - saved as #{file}" unless options[:mute]
         puts code.finalize if options[:pp]
       rescue Exception => e

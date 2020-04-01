@@ -135,6 +135,8 @@ module Vertigo
       token :lparen            => /\A\(/
       token :rparen            => /\A\)/
 
+      token :tick              => /\A'/  #for qualified expression
+
       token :neq               => /\A\/\=/ # here for precedence
 
       # arith

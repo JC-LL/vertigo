@@ -110,7 +110,7 @@
 - EntitySpec:
   - elementS
   - entity_class
-  
+
 #======= statements =====
 
 - SigAssign:
@@ -255,6 +255,9 @@
   - lhs
   - rhs
 
+- Qualified:
+  - lhs
+  - rhs
 # === terms
 - ident:
   - tok

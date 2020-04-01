@@ -437,6 +437,13 @@ module Vertigo
     end
   end
    
+  class Qualified < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
   class Ident < AstNode
     attr_accessor :tok
     def initialize tok=nil
