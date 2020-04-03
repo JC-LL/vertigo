@@ -1,0 +1,194 @@
+CAPI=2:
+
+name : ::microwatt:0
+
+filesets:
+  core:
+    files:
+      - decode_types.vhdl
+      - wishbone_types.vhdl
+      - common.vhdl
+      - fetch1.vhdl
+      - fetch2.vhdl
+      - decode1.vhdl
+      - helpers.vhdl
+      - decode2.vhdl
+      - register_file.vhdl
+      - cr_file.vhdl
+      - crhelpers.vhdl
+      - ppc_fx_insns.vhdl
+      - sim_console.vhdl
+      - logical.vhdl
+      - countzero.vhdl
+      - gpr_hazard.vhdl
+      - cr_hazard.vhdl
+      - control.vhdl
+      - execute1.vhdl
+      - loadstore1.vhdl
+      - dcache.vhdl
+      - multiply.vhdl
+      - divider.vhdl
+      - rotator.vhdl
+      - writeback.vhdl
+      - insn_helpers.vhdl
+      - core.vhdl
+      - icache.vhdl
+      - plru.vhdl
+      - cache_ram.vhdl
+      - core_debug.vhdl
+      - utils.vhdl
+    file_type : vhdlSource-2008
+
+  soc:
+    files:
+      - wishbone_arbiter.vhdl
+      - wishbone_debug_master.vhdl
+      - wishbone_bram_wrapper.vhdl
+      - soc.vhdl
+    file_type : vhdlSource-2008
+
+  fpga:
+    files:
+      - fpga/main_bram.vhdl
+      - fpga/soc_reset.vhdl
+      - fpga/pp_fifo.vhd
+      - fpga/pp_soc_uart.vhd
+      - fpga/pp_utilities.vhd
+      - fpga/toplevel.vhdl
+      - fpga/firmware.hex : {copyto : firmware.hex, file_type : user}
+    file_type : vhdlSource-2008
+
+  debug_xilinx:
+    files:
+      - dmi_dtm_xilinx.vhdl : {file_type : vhdlSource-2008}
+
+  debug_dummy:
+    files:
+      - dmi_dtm_dummy.vhdl : {file_type : vhdlSource-2008}
+
+  nexys_a7:
+    files:
+      - fpga/nexys_a7.xdc : {file_type : xdc}
+      - fpga/clk_gen_plle2.vhd : {file_type : vhdlSource-2008}
+
+  nexys_video:
+    files:
+      - fpga/nexys-video.xdc : {file_type : xdc}
+      - fpga/clk_gen_plle2.vhd : {file_type : vhdlSource-2008}
+
+  arty_a7:
+    files:
+      - fpga/arty_a7.xdc : {file_type : xdc}
+      - fpga/clk_gen_plle2.vhd : {file_type : vhdlSource-2008}
+
+  cmod_a7-35:
+    files:
+      - fpga/cmod_a7-35.xdc : {file_type : xdc}
+      - fpga/clk_gen_mcmm.vhd : {file_type : vhdlSource-2008}
+
+targets:
+  nexys_a7:
+    default_tool: vivado
+    filesets: [core, nexys_a7, soc, fpga, debug_xilinx]
+    parameters :
+      - memory_size
+      - ram_init_file
+      - clk_input
+      - clk_frequency
+      - disable_flatten_core
+    tools:
+      vivado: {part : xc7a100tcsg324-1}
+    toplevel : toplevel
+
+  nexys_video:
+    default_tool: vivado
+    filesets: [core, nexys_video, soc, fpga, debug_xilinx]
+    parameters :
+      - memory_size
+      - ram_init_file
+      - clk_input
+      - clk_frequency
+      - disable_flatten_core
+    tools:
+      vivado: {part : xc7a200tsbg484-1}
+    toplevel : toplevel
+
+  arty_a7-35:
+    default_tool: vivado
+    filesets: [core, arty_a7, soc, fpga, debug_xilinx]
+    parameters :
+      - memory_size
+      - ram_init_file
+      - clk_input
+      - clk_frequency
+      - disable_flatten_core
+    tools:
+      vivado: {part : xc7a35ticsg324-1L}
+    toplevel : toplevel
+
+  arty_a7-100:
+    default_tool: vivado
+    filesets: [core, arty_a7, soc, fpga, debug_xilinx]
+    parameters :
+      - memory_size
+      - ram_init_file
+      - clk_input
+      - clk_frequency
+      - disable_flatten_core
+    tools:
+      vivado: {part : xc7a100ticsg324-1L}
+    toplevel : toplevel
+
+  cmod_a7-35:
+    default_tool: vivado
+    filesets: [core, cmod_a7-35, soc, fpga, debug_xilinx]
+    parameters :
+      - memory_size
+      - ram_init_file
+      - reset_low=false
+      - clk_input=12000000
+      - clk_frequency
+      - disable_flatten_core
+    tools:
+      vivado: {part : xc7a35tcpg236-1}
+    toplevel : toplevel
+
+  synth:
+    filesets: [core, soc]
+    tools:
+      vivado: {pnr : none}
+    toplevel: core
+
+parameters:
+  memory_size:
+    datatype    : int
+    description : On-chip memory size (bytes)
+    paramtype   : generic
+
+  ram_init_file:
+    datatype    : file
+    description : Initial on-chip RAM contents
+    paramtype   : generic
+
+  reset_low:
+    datatype    : bool
+    description : External reset button polarity
+    paramtype   : generic
+
+  clk_input:
+    datatype    : int
+    description : Clock input frequency in HZ (for top-generic based boards)
+    paramtype   : generic
+    default     : 100000000
+
+  clk_frequency:
+    datatype    : int
+    description : Generated system clock frequency in HZ (for top-generic based boards)
+    paramtype   : generic
+    default     : 50000000
+
+  disable_flatten_core:
+    datatype    : bool
+    description : Prevent Vivado from flattening the main core components
+    paramtype   : generic
+    default     : false

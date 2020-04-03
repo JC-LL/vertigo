@@ -113,6 +113,7 @@ module Vertigo
       keyword 'warning'
       keyword 'error'
       keyword 'note'
+      keyword 'failure'
       keyword 'true'
       keyword 'false'
       #.............................................................
@@ -125,8 +126,8 @@ module Vertigo
       token :string_literal    => /"[^"]*"/
       token :char_literal      => /'(\w+)'/
       token :attribute_literal => /'(\w+)/
+      token :based_literal     => /\d+#\w+(\.\w+)?#/
       token :decimal_literal   => /\d+(\.\d+)?(E([+-]?)\d+)?/
-      token :based_literal     => /\d+#\w+(\.\w+)?#(E[+-]?\d+)/
       token :vassign           => /\A\:\=/
       #token :sassign           => /\A\<\=/
       token :comma             => /\A\,/

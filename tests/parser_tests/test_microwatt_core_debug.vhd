@@ -1,0 +1,1 @@
+../microwatt/core_debug.vhdl

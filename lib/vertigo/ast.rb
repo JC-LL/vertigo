@@ -59,4 +59,10 @@ module Vertigo
     end
   end
 
+  class Alternative < AstNode
+    def << e
+      @elements << e
+    end  
+  end
+
 end

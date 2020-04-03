@@ -248,6 +248,13 @@ module Vertigo
     end
   end
    
+  class Alternative < AstNode
+    attr_accessor :elements
+    def initialize elements=[]
+      @elements=elements
+    end
+  end
+   
   class NullStmt < AstNode
     attr_accessor :dummy
     def initialize dummy=nil
@@ -269,6 +276,13 @@ module Vertigo
     end
   end
    
+  class Severity < AstNode
+    attr_accessor :type
+    def initialize type=nil
+      @type=type
+    end
+  end
+   
   class WithSelect < AstNode
     attr_accessor :with_expr,:assigned,:selected_whens
     def initialize with_expr=nil,assigned=nil,selected_whens=[]
@@ -283,7 +297,35 @@ module Vertigo
     end
   end
    
+  class IfGenerate < AstNode
+    attr_accessor :cond,:body
+    def initialize cond=nil,body=nil
+      @cond,@body=cond,body
+    end
+  end
+   
+  class ForGenerate < AstNode
+    attr_accessor :index,:range,:decls,:body
+    def initialize index=nil,range=nil,decls=[],body=nil
+      @index,@range,@decls,@body=index,range,decls,body
+    end
+  end
+   
+  class IsolatedRange < AstNode
+    attr_accessor :lhs,:rhs
+    def initialize lhs=nil,rhs=nil
+      @lhs,@rhs=lhs,rhs
+    end
+  end
+   
   class TypeDecl < AstNode
+    attr_accessor :name,:spec
+    def initialize name=nil,spec=nil
+      @name,@spec=name,spec
+    end
+  end
+   
+  class SubTypeDecl < AstNode
     attr_accessor :name,:spec
     def initialize name=nil,spec=nil
       @name,@spec=name,spec
@@ -346,10 +388,24 @@ module Vertigo
     end
   end
    
+  class Alias < AstNode
+    attr_accessor :designator,:type,:name,:signature
+    def initialize designator=nil,type=nil,name=nil,signature=nil
+      @designator,@type,@name,@signature=designator,type,name,signature
+    end
+  end
+   
   class StdType < AstNode
     attr_accessor :ident
     def initialize ident=nil
       @ident=ident
+    end
+  end
+   
+  class RangedType < AstNode
+    attr_accessor :type,:range
+    def initialize type=nil,range=nil
+      @type,@range=type,range
     end
   end
    

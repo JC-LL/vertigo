@@ -146,6 +146,9 @@
   - expr
   - body
 
+- Alternative:
+  - elementS
+
 - NullStmt:
   - dummy
 
@@ -158,6 +161,9 @@
   - expr
   - severity
 
+- Severity:
+  - type
+
 - WithSelect:
   - with_expr
   - assigned
@@ -166,8 +172,26 @@
 - SelectedWhen:
   - lhs
   - rhs
+
+- IfGenerate:
+  - cond
+  - body
+
+- ForGenerate:
+  - index
+  - range
+  - declS
+  - body
+
+- IsolatedRange:
+  - lhs
+  - rhs
+
 #====================
 - TypeDecl:
+  - name
+  - spec
+- SubTypeDecl:
   - name
   - spec
 
@@ -204,8 +228,18 @@
   - type
   - init
 
+- Alias:
+  - designator
+  - type
+  - name
+  - signature
+
 - StdType:
   - ident
+
+- RangedType:
+  - type
+  - range
 
 - NamedType:
   - ident
@@ -218,6 +252,8 @@
   - lhs
   - dir
   - rhs
+
+
 
 # === expressions
 - Parenth:

@@ -189,6 +189,10 @@ module Vertigo
       casewhen_.body.accept(self,args)
     end
      
+    def visitAlternative(alternative_,args=nil)
+      alternative_.elements.each{|element_| element_.accept(self,args)}
+    end
+     
     def visitNullStmt(nullstmt_,args=nil)
       nullstmt_.dummy.accept(self,args)
     end
@@ -204,6 +208,10 @@ module Vertigo
       report_.severity.accept(self,args)
     end
      
+    def visitSeverity(severity_,args=nil)
+      severity_.type.accept(self,args)
+    end
+     
     def visitWithSelect(withselect_,args=nil)
       withselect_.with_expr.accept(self,args)
       withselect_.assigned.accept(self,args)
@@ -215,9 +223,31 @@ module Vertigo
       selectedwhen_.rhs.accept(self,args)
     end
      
+    def visitIfGenerate(ifgenerate_,args=nil)
+      ifgenerate_.cond.accept(self,args)
+      ifgenerate_.body.accept(self,args)
+    end
+     
+    def visitForGenerate(forgenerate_,args=nil)
+      forgenerate_.index.accept(self,args)
+      forgenerate_.range.accept(self,args)
+      forgenerate_.decls.each{|decl_| decl_.accept(self,args)}
+      forgenerate_.body.accept(self,args)
+    end
+     
+    def visitIsolatedRange(isolatedrange_,args=nil)
+      isolatedrange_.lhs.accept(self,args)
+      isolatedrange_.rhs.accept(self,args)
+    end
+     
     def visitTypeDecl(typedecl_,args=nil)
       typedecl_.name.accept(self,args)
       typedecl_.spec.accept(self,args)
+    end
+     
+    def visitSubTypeDecl(subtypedecl_,args=nil)
+      subtypedecl_.name.accept(self,args)
+      subtypedecl_.spec.accept(self,args)
     end
      
     def visitEnumDecl(enumdecl_,args=nil)
@@ -261,8 +291,20 @@ module Vertigo
       variable_.init.accept(self,args)
     end
      
+    def visitAlias(alias_,args=nil)
+      alias_.designator.accept(self,args)
+      alias_.type.accept(self,args)
+      alias_.name.accept(self,args)
+      alias_.signature.accept(self,args)
+    end
+     
     def visitStdType(stdtype_,args=nil)
       stdtype_.ident.accept(self,args)
+    end
+     
+    def visitRangedType(rangedtype_,args=nil)
+      rangedtype_.type.accept(self,args)
+      rangedtype_.range.accept(self,args)
     end
      
     def visitNamedType(namedtype_,args=nil)
