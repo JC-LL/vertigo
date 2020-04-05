@@ -191,6 +191,7 @@
 - TypeDecl:
   - name
   - spec
+  
 - SubTypeDecl:
   - name
   - spec

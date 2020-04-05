@@ -238,9 +238,10 @@ module Vertigo
       e1=parse_expression
       if showNext.is_a? [:downto,:to]
         dir=acceptIt
+        e2=parse_expression
+        return DiscreteRange.new(e1,dir,e2)
       end
-      e2=parse_expression
-      DiscreteRange.new(e1,dir,e2)
+      e1
     end
 
     def parse_architecture
@@ -589,6 +590,9 @@ module Vertigo
       expect :is
       ret.name=Ident.new(expect :ident)
       ret.signature=nil #NIY
+      unless showNext.is_a?(:semicolon)
+        raise "ERROR : parse alias (signature not implemented yet)"
+      end
       expect :semicolon
       ret
     end
@@ -794,7 +798,7 @@ module Vertigo
       expect :for
       ret.index=Ident.new(acceptIt)
       expect :in
-      parse_discrete_range
+      ret.range=parse_discrete_range
       expect :generate
       while showNext.is_not_a?(:begin)
         parse_decls
@@ -936,7 +940,8 @@ module Vertigo
 
     def parse_assign
       lhs=parse_term
-      if showNext.is_a? [:vassign,:leq]
+
+      if showNext.is_a? [:vassign,:leq,:semicolon]
         case showNext.kind
         when :vassign
           acceptIt
@@ -944,11 +949,13 @@ module Vertigo
         when :leq
           acceptIt
           ret=SigAssign.new(lhs)
+        when :semicolon #assign? No ! Procedure call !
+          acceptIt
+          return lhs
         end
       end
 
-      rhs=parse_expression
-
+      ret.rhs=rhs=parse_expression
       case showNext.kind
       when :comma
         ret.rhs=wfm=Waveform.new
@@ -1090,7 +1097,9 @@ module Vertigo
 
     def parse_return
       expect :return
-      parse_expression
+      unless showNext.is_a?(:semicolon)
+        parse_expression
+      end
       expect :semicolon
     end
 
@@ -1143,8 +1152,12 @@ module Vertigo
     end
 
     # ============================= expression ===============================
-    ADDITIV_OP  =[:add,:sub, :or, :xor,:xnor, :nor] #xor ?
     def parse_expression
+      e=parse_additive
+    end
+
+    ADDITIV_OP  =[:add,:sub, :or, :xor,:xnor, :nor] #xor ?
+    def parse_additive
       t1=parse_multiplicative
       while more? && showNext.is_a?(ADDITIV_OP)
         op=acceptIt #full token
@@ -1154,7 +1167,7 @@ module Vertigo
       return t1
     end
 
-    MULTITIV_OP=[:mul,:div,:mod,:and,:nand,:shiftr,:shiftl]
+    MULTITIV_OP=[:mul,:div,:mod,:and,:nand,:shiftr,:shiftl,:exp] #exp ?
     def parse_multiplicative
       t1=parse_comparative
       while more? && showNext.is_a?(MULTITIV_OP)
@@ -1204,7 +1217,7 @@ module Vertigo
           puts "cannot parse term : #{showNext} #{showNext.pos}"
         end
       end
-
+      #pp showNext
       while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand,:tick])
         if par=parenthesized?
           par.name=ret

@@ -143,6 +143,7 @@ module Vertigo
       # arith
       token :add               => /\A\+/
       token :sub               => /\A\-/
+      token :exp               => /\A\*\*/
       token :mul               => /\A\*/
       token :div               => /\A\//
 

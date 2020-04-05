@@ -138,7 +138,7 @@ module Vertigo
 
     def visitFormalArg formalarg_,args=nil
       sig =formalarg_.signal.accept(self,args) if formalarg_.signal
-      dir =formalarg_.direction.accept(self,args)
+      dir =formalarg_.direction.accept(self,args) if formalarg_.direction
       dir+=" " if dir
       name=formalarg_.name.accept(self,args)
       type=formalarg_.type.accept(self,args)
@@ -168,7 +168,19 @@ module Vertigo
     def visitTypeDecl type_decl,args=nil
       name=type_decl.name.accept(self)
       type_spec=type_decl.spec.accept(self)
-      "type #{name} is #{type_spec};"
+      code=Code.new
+      code.newline
+      code << "type #{name} is #{type_spec};"
+      code
+    end
+
+    def visitSubTypeDecl sub_type_decl,args=nil
+      name=sub_type_decl.name.accept(self)
+      type_spec=sub_type_decl.spec.accept(self)
+      code=Code.new
+      code.newline
+      code << "subtype #{name} is #{type_spec};"
+      code
     end
 
     def visitEnumDecl enum,args=nil
@@ -199,9 +211,9 @@ module Vertigo
     end
 
     def visitArrayDimDecl(arraydimdecl_,args=nil)
-      type_mark=arraydimdecl_.type_mark.accept(self)
+      type_mark=arraydimdecl_.type_mark.accept(self)+" " if arraydimdecl_.type_mark
       range=arraydimdecl_.range.accept(self,args)
-      "#{type_mark} range #{range}"
+      "#{type_mark}range #{range}"
     end
 
     def visitConstant cst,args=nil
@@ -225,6 +237,14 @@ module Vertigo
       init=variable.init.accept(self) if variable.init
       init=" := #{init}" if init
       "variable #{name} : #{type}#{init};"
+    end
+
+    def visitAlias(alias_,args=nil)
+      designator= alias_.designator.accept(self,args)
+      type      = alias_.type.accept(self,args)
+      name      = alias_.name.accept(self,args)
+      signature = alias_.signature.accept(self,args) if alias_.signature
+      "alias #{designator} : #{type} is #{name} #{};"
     end
 
     def visitBody(body,args=nil)
@@ -302,6 +322,10 @@ module Vertigo
       code
     end
 
+    def visitAlternative(alternative_,args=nil)
+      alternative_.elements.map{|element_| element_.accept(self,args)}.join(" | ")
+    end
+
     def visitNullStmt null_,args=nil
       "null;"
     end
@@ -343,6 +367,34 @@ module Vertigo
       rhs=selectedwhen_.rhs.accept(self,args)
       "#{lhs} when #{rhs}"
     end
+
+    def visitIfGenerate(ifgenerate_,args=nil)
+      cond=ifgenerate_.cond.accept(self,args)
+      body=ifgenerate_.body.accept(self,args)
+      code=Code.new
+      code << "if #{cond} generate"
+      code.indent=2
+      code << body
+      code.indent=0
+      code << "end generate;"
+      code
+    end
+
+    def visitForGenerate(forgenerate_,args=nil)
+      idx  =forgenerate_.index.accept(self,args)
+      range=forgenerate_.range.accept(self,args)
+      decls=forgenerate_.decls.each{|decl_| decl_.accept(self,args)} if forgenerate_.decls
+      body =forgenerate_.body.accept(self,args)
+      code=Code.new
+      code << "for #{idx} in #{range} generate"
+      code.indent=2
+      code << decls if decls
+      code << body
+      code.indent=0
+      code << "end generate;"
+      code
+    end
+
     #====================================
     def visitEntityInstance inst,args=nil
       code=Code.new
@@ -469,6 +521,7 @@ module Vertigo
     end
 
     def visitSigAssign(sigassign,args=nil)
+      #pp sigassign
       lhs=sigassign.lhs.accept(self,args)
       rhs=sigassign.rhs.accept(self,args)
       "#{lhs} <= #{rhs};"
@@ -488,6 +541,12 @@ module Vertigo
 
     def visitStdType(stdtype,args=nil)
       stdtype.ident.accept(self,args)
+    end
+
+    def visitRangedType(rangedtype_,args=nil)
+      type=rangedtype_.type.accept(self,args)
+      range=rangedtype_.range.accept(self,args)
+      "#{type} #{range}"
     end
 
     def visitNamedType(namedtype,args=nil)
