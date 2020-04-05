@@ -491,28 +491,36 @@ module Vertigo
     end
 
     def parse_function
+      ret=FuncDecl.new
       maybe :impure
       expect :function
-      expect :ident
+      ret.name=Ident.new(expect :ident)
       if showNext.is_a?(:lparen)
         acceptIt
-        parse_formal_args
+        ret.formal_args=parse_formal_args
         expect :rparen
       end
 
       expect :return
-      parse_type
+      ret.return_type=parse_type
 
       unless showNext.is_a?(:semicolon)
         expect :is
-        parse_decls
+        ret.decls=parse_decls
         expect :begin
-        parse_body
+        ret.body=parse_body
         expect :end
         maybe :function
         maybe :ident
+      else
+        proto=FuncProtoDecl.new
+        proto.name=ret.name
+        proto.formal_args=ret.formal_args
+        proto.return_type=ret.return_type
+        ret=proto
       end
       expect :semicolon
+      ret
     end
 
     def parse_component_decl
@@ -951,7 +959,10 @@ module Vertigo
           ret=SigAssign.new(lhs)
         when :semicolon #assign? No ! Procedure call !
           acceptIt
-          return lhs
+          ret=ProcedureCall.new
+          ret.name=lhs
+          ret.actual_args=[]
+          return ret
         end
       end
 
@@ -1096,11 +1107,13 @@ module Vertigo
     end
 
     def parse_return
+      ret=Return.new
       expect :return
       unless showNext.is_a?(:semicolon)
-        parse_expression
+        ret.expr=parse_expression
       end
       expect :semicolon
+      return ret
     end
 
     def parse_assert

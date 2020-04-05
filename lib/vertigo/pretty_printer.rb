@@ -59,6 +59,7 @@ module Vertigo
       name=generic.name.accept(self,args)
       type=generic.type.accept(self,args)
       init=generic.init.accept(self,args) if generic.init
+      init+=" := #{init}" if init
       "#{name} : #{type}#{init};"
     end
 
@@ -143,6 +144,13 @@ module Vertigo
       name=formalarg_.name.accept(self,args)
       type=formalarg_.type.accept(self,args)
       "#{sig}#{name} : #{dir}#{type}"
+    end
+
+    def visitProcedureCall(procedurecall_,args=nil)
+      name=procedurecall_.name.accept(self,args)
+      args=name=procedurecall_.actual_args.map{|actual_arg_| actual_arg_.accept(self,args)}.join(',')
+      args="(#{args})" if args
+      "#{name}#{args}"
     end
 
     # ====================================================
@@ -348,6 +356,12 @@ module Vertigo
       severity=" severity #{sevr}" if sevr
       "report #{expr}#{severity};"
     end
+
+     def visitReturn(return_,args=nil)
+       expr=return_.expr.accept(self,args) if return_.expr
+       expr=" #{expr}" if expr
+       "return#{expr};"
+     end
 
     def visitWithSelect(withselect_,args=nil)
       expr=withselect_.with_expr.accept(self,args)
@@ -635,6 +649,33 @@ module Vertigo
       lhs=qualified_.lhs.accept(self,args)
       rhs=qualified_.rhs.accept(self,args)
       "#{lhs}'#{rhs}"
+    end
+
+    def visitFuncProtoDecl(funcprotodecl_,args=nil)
+      name=funcprotodecl_.name.accept(self,args)
+      args=funcprotodecl_.formal_args.map{|formal_arg_| formal_arg_.accept(self,args)}.join(";")
+      type=funcprotodecl_.return_type.accept(self)
+      args="(#{args})" if args
+      "function #{name}#{args} return #{type}"
+    end
+
+    def visitFuncDecl(funcdecl_,args=nil)
+      name=funcdecl_.name.accept(self,args)
+      args=funcdecl_.formal_args.map{|formal_arg_| formal_arg_.accept(self,args)}.join(";")
+      type=funcdecl_.return_type.accept(self)
+      args="(#{args})" if args
+      code=Code.new
+      code.newline
+      code << "function #{name}#{args} return #{type} is"
+      code.indent=2
+      funcdecl_.decls.each{|decl| code << decl.accept(self)}
+      code.indent=0
+      code << "begin"
+      code.indent=2
+      code << funcdecl_.body.accept(self)
+      code.indent=0
+      code << "end function #{name};"
+      code
     end
 
     def visitFuncCall funcall,args=nil

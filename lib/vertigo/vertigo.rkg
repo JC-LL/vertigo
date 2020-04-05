@@ -54,6 +54,9 @@
   - name
   - type
 
+- ProcedureCall:
+  - name
+  - actual_argS
 #====================
 - architecture:
   - name
@@ -164,6 +167,9 @@
 - Severity:
   - type
 
+- Return:
+  - expr
+
 - WithSelect:
   - with_expr
   - assigned
@@ -191,7 +197,7 @@
 - TypeDecl:
   - name
   - spec
-  
+
 - SubTypeDecl:
   - name
   - spec
@@ -305,6 +311,18 @@
 - selectedName:
   - lhs
   - rhs
+
+- FuncProtoDecl:
+  - name
+  - formal_argS
+  - return_type
+
+- FuncDecl:
+  - name
+  - formal_argS
+  - return_type
+  - decls
+  - body
 
 - FuncCall:
   - name

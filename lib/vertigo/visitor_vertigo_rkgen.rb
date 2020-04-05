@@ -79,6 +79,11 @@ module Vertigo
       formalarg_.type.accept(self,args)
     end
      
+    def visitProcedureCall(procedurecall_,args=nil)
+      procedurecall_.name.accept(self,args)
+      procedurecall_.actual_args.each{|actual_arg_| actual_arg_.accept(self,args)}
+    end
+     
     def visitArchitecture(architecture_,args=nil)
       architecture_.name.accept(self,args)
       architecture_.entity_name.accept(self,args)
@@ -210,6 +215,10 @@ module Vertigo
      
     def visitSeverity(severity_,args=nil)
       severity_.type.accept(self,args)
+    end
+     
+    def visitReturn(return_,args=nil)
+      return_.expr.accept(self,args)
     end
      
     def visitWithSelect(withselect_,args=nil)
@@ -382,6 +391,20 @@ module Vertigo
     def visitSelectedName(selectedname_,args=nil)
       selectedname_.lhs.accept(self,args)
       selectedname_.rhs.accept(self,args)
+    end
+     
+    def visitFuncProtoDecl(funcprotodecl_,args=nil)
+      funcprotodecl_.name.accept(self,args)
+      funcprotodecl_.formal_args.each{|formal_arg_| formal_arg_.accept(self,args)}
+      funcprotodecl_.return_type.accept(self,args)
+    end
+     
+    def visitFuncDecl(funcdecl_,args=nil)
+      funcdecl_.name.accept(self,args)
+      funcdecl_.formal_args.each{|formal_arg_| formal_arg_.accept(self,args)}
+      funcdecl_.return_type.accept(self,args)
+      funcdecl_.decls.accept(self,args)
+      funcdecl_.body.accept(self,args)
     end
      
     def visitFuncCall(funccall_,args=nil)

@@ -101,6 +101,13 @@ module Vertigo
     end
   end
    
+  class ProcedureCall < AstNode
+    attr_accessor :name,:actual_args
+    def initialize name=nil,actual_args=[]
+      @name,@actual_args=name,actual_args
+    end
+  end
+   
   class Architecture < AstNode
     attr_accessor :name,:entity_name,:decls,:body
     def initialize name=nil,entity_name=nil,decls=[],body=nil
@@ -280,6 +287,13 @@ module Vertigo
     attr_accessor :type
     def initialize type=nil
       @type=type
+    end
+  end
+   
+  class Return < AstNode
+    attr_accessor :expr
+    def initialize expr=nil
+      @expr=expr
     end
   end
    
@@ -518,6 +532,20 @@ module Vertigo
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil
       @lhs,@rhs=lhs,rhs
+    end
+  end
+   
+  class FuncProtoDecl < AstNode
+    attr_accessor :name,:formal_args,:return_type
+    def initialize name=nil,formal_args=[],return_type=nil
+      @name,@formal_args,@return_type=name,formal_args,return_type
+    end
+  end
+   
+  class FuncDecl < AstNode
+    attr_accessor :name,:formal_args,:return_type,:decls,:body
+    def initialize name=nil,formal_args=[],return_type=nil,decls=nil,body=nil
+      @name,@formal_args,@return_type,@decls,@body=name,formal_args,return_type,decls,body
     end
   end
    
