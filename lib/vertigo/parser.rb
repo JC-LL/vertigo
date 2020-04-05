@@ -1154,6 +1154,28 @@ module Vertigo
     # ============================= expression ===============================
     def parse_expression
       e=parse_additive
+      e=fix_corner_case(e)
+      e
+    end
+
+    # z(0) := or (rs(15 downto 0));
+    # zero := not (or e_in.write_data);
+    def fix_corner_case e
+      case e
+      when Binary
+        if e.lhs.nil?
+          ret=FuncCall.new
+          ret.name=Ident.new(Token.create(e.op.val))
+          case parenth=e.rhs
+          when Parenth
+            ret.actual_args=[parenth.expr].flatten
+          else
+            ret.actual_args=[e.rhs].flatten
+          end
+          return ret
+        end
+      end
+      e
     end
 
     ADDITIV_OP  =[:add,:sub, :or, :xor,:xnor, :nor] #xor ?
