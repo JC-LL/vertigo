@@ -380,6 +380,13 @@ module Vertigo
       qualified_.rhs.accept(self,args)
     end
      
+    def visitSliced(sliced_,args=nil)
+      sliced_.expr.accept(self,args)
+      sliced_.lhs.accept(self,args)
+      sliced_.dir.accept(self,args)
+      sliced_.rhs.accept(self,args)
+    end
+     
     def visitIdent(ident_,args=nil)
       ident_.tok.accept(self,args)
     end

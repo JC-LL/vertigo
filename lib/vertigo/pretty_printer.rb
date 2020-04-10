@@ -370,7 +370,7 @@ module Vertigo
       code=Code.new
       code << "with #{expr} select #{assigned} <="
       code.indent=2
-      withselect_.selected_whens.each{|selected_when_| code << selected_when_.accept(self,args)}
+      withselect_.selected_whens.each{|selected_when_| code << selected_when_.accept(self,args)+","}
       code.indent=0
       code.last << ";"
       code
@@ -560,7 +560,7 @@ module Vertigo
     def visitRangedType(rangedtype_,args=nil)
       type=rangedtype_.type.accept(self,args)
       range=rangedtype_.range.accept(self,args)
-      "#{type} #{range}"
+      "#{type} range #{range}"
     end
 
     def visitNamedType(namedtype,args=nil)
@@ -649,6 +649,14 @@ module Vertigo
       lhs=qualified_.lhs.accept(self,args)
       rhs=qualified_.rhs.accept(self,args)
       "#{lhs}'#{rhs}"
+    end
+
+    def visitSliced(sliced_,args=nil)
+      exp=sliced_.expr.accept(self,args)
+      lhs=sliced_.lhs.accept(self,args)
+      dir=sliced_.dir.accept(self,args)
+      rhs=sliced_.rhs.accept(self,args)
+      "#{exp}(#{lhs} #{dir} #{rhs})"
     end
 
     def visitFuncProtoDecl(funcprotodecl_,args=nil)

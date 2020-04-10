@@ -301,6 +301,13 @@
 - Qualified:
   - lhs
   - rhs
+
+- Sliced:
+  - expr
+  - lhs
+  - dir
+  - rhs
+
 # === terms
 - ident:
   - tok

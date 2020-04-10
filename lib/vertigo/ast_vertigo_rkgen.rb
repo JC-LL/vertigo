@@ -514,6 +514,13 @@ module Vertigo
     end
   end
    
+  class Sliced < AstNode
+    attr_accessor :expr,:lhs,:dir,:rhs
+    def initialize expr=nil,lhs=nil,dir=nil,rhs=nil
+      @expr,@lhs,@dir,@rhs=expr,lhs,dir,rhs
+    end
+  end
+   
   class Ident < AstNode
     attr_accessor :tok
     def initialize tok=nil

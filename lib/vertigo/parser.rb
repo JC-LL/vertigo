@@ -1167,7 +1167,7 @@ module Vertigo
     # ============================= expression ===============================
     def parse_expression
       e=parse_additive
-      e=fix_corner_case(e)
+      e=fix_corner_case(e) # things like => zero := not (or e_in.write_data);
       e
     end
 
@@ -1254,9 +1254,15 @@ module Vertigo
       end
       #pp showNext
       while showNext && showNext.is_a?([:lbrack,:dot,:attribute_literal,:lparen,:ns,:ps,:ms,:after,:ampersand,:tick])
-        if par=parenthesized?
-          par.name=ret
-          ret=par
+        if par=sliced=parenthesized?
+          case par
+          when FuncCall
+            par.name=ret
+            ret=par
+          when Sliced
+            sliced.expr=ret
+            ret=sliced
+          end
         elsif selected_name=selected_name?
           selected_name.lhs=ret
           ret=selected_name
@@ -1291,7 +1297,7 @@ module Vertigo
       expect :lparen
       ret.expr=expr=parse_aggregate_part
       if aggregate=aggregated?
-        aggregate << expr
+        aggregate.elements.unshift expr
         ret=aggregate
       end
       expect :rparen
@@ -1301,9 +1307,10 @@ module Vertigo
     def aggregated?
       if showNext.is_a? [:comma]
         ret=Aggregate.new
+        ret.pos=showNext.pos
         while showNext.is_a?(:comma)
           acceptIt
-          parse_aggregate_part
+          ret << parse_aggregate_part
         end
         return ret
       end
@@ -1328,6 +1335,7 @@ module Vertigo
     #-----------------------------------------------------------------^ !!!! ..^......
     #req_laddr <= r0.addr(63 downto LINE_OFF_BITS) & (LINE_OFF_BITS-1 downto 0 => '0');
     #------------------------------------------------[     expr     ]
+    # NOT used ?
     def isolated_range?
       if showNext.is_a? [:downto,:to]
         acceptIt
@@ -1389,17 +1397,20 @@ module Vertigo
             acceptIt
             args << parse_map()
           end
-          if showNext.is_a? [:downto,:to] #slice !
-            acceptIt
-            parse_expression
+          ret.actual_args = args
+          if showNext.is_a? [:downto,:to] #finally this was a Sliced !
+            ret=Sliced.new
+            ret.dir=acceptIt
+            ret.rhs=parse_expression
+            ret.lhs=args.first
           end
         end
         expect :rparen
-        ret.actual_args = args
+
+        return ret
       else
         return false
       end
-      return ret
     end
 
     def initialized?
