@@ -1,5 +1,4 @@
 require 'strscan'
-
 require_relative 'token'
 
 class GenericLexer
@@ -37,7 +36,7 @@ class GenericLexer
     linecol=position()
     @rules.each do |rule, regexp|
       val = @ssc.scan(regexp)
-      return Token.new([rule, val, linecol]) if val
+      return Vertigo::Token.new([rule, val, linecol]) if val
     end
     raise  "lexing error line #{linecol.first} around : ...'#{@ssc.peek(5)}'... "
   end

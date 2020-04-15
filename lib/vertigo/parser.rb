@@ -1178,7 +1178,7 @@ module Vertigo
       when Binary
         if e.lhs.nil?
           ret=FuncCall.new
-          ret.name=Ident.new(Token.create(e.op.val))
+          ret.name=Ident.new(Vertigo::Token.create(:ident,e.op.val))
           case parenth=e.rhs
           when Parenth
             ret.actual_args=[parenth.expr].flatten
@@ -1237,7 +1237,7 @@ module Vertigo
         when :decimal_literal
           ret=IntLit.new(acceptIt)
         when :char_literal
-          ret=acceptIt
+          ret=CharLit.new(acceptIt)
         when :string_literal,:bit_string_literal,:based_literal
           ret=acceptIt
         when :true,:false

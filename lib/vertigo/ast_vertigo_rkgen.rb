@@ -24,6 +24,13 @@ module Vertigo
     end
   end
    
+  class Comment < AstNode
+    attr_accessor :str
+    def initialize str=nil
+      @str=str
+    end
+  end
+   
   class Library < AstNode
     attr_accessor :name
     def initialize name=nil
@@ -529,6 +536,13 @@ module Vertigo
   end
    
   class IntLit < AstNode
+    attr_accessor :tok
+    def initialize tok=nil
+      @tok=tok
+    end
+  end
+   
+  class CharLit < AstNode
     attr_accessor :tok
     def initialize tok=nil
       @tok=tok

@@ -17,6 +17,25 @@ module Vertigo
     end
   end
 
+  class RecordDecl  AstNode
+    def <<(e)
+      @elements << e
+    end
+  end
+
+  class Ident < AstNode
+    def self.create str
+      Ident.new(Vertigo::Token.create(:ident,str))
+    end
+  end
+
+  class Else < AstNode
+    def <<(e)
+      @body||=Body.new
+      @body << e
+    end
+  end
+
   class Body < AstNode
     def <<(e)
       @elements << e
@@ -62,7 +81,7 @@ module Vertigo
   class Alternative < AstNode
     def << e
       @elements << e
-    end  
+    end
   end
 
 end

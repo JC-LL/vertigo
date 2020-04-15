@@ -15,6 +15,10 @@ module Vertigo
       root_.design_units.each{|design_unit_| design_unit_.accept(self,args)}
     end
      
+    def visitComment(comment_,args=nil)
+      comment_.str.accept(self,args)
+    end
+     
     def visitLibrary(library_,args=nil)
       library_.name.accept(self,args)
     end
@@ -393,6 +397,10 @@ module Vertigo
      
     def visitIntLit(intlit_,args=nil)
       intlit_.tok.accept(self,args)
+    end
+     
+    def visitCharLit(charlit_,args=nil)
+      charlit_.tok.accept(self,args)
     end
      
     def visitSelectedName(selectedname_,args=nil)

@@ -17,7 +17,15 @@ module Vertigo
       code
     end
 
-    def visitLibrary(library,args=nil)
+    def visitToken token,args=nil
+      token.val
+    end
+
+    def visitComment(comment_,args=nil)
+      "-- #{comment_.str}"
+    end
+
+    def visitLibrary(library,args=nil)vhdl=Code.new
       name=library.name.accept(self,args)
       "library #{name};"
     end
@@ -158,7 +166,7 @@ module Vertigo
       code=Code.new
       name=architecture.name.accept(self,args)
       entity_name=architecture.entity_name.accept(self,args)
-      body=architecture.body.accept(self,args)
+      body=architecture.body.accept(self,args) if architecture.body
 
       code << "architecture #{name} of #{entity_name} is"
       code.indent=2
@@ -270,7 +278,7 @@ module Vertigo
       label=if_.label.accept(self) if if_.label
       cond=if_.cond.accept(self)
       body=if_.body.accept(self)
-      elsifs_=if_.elsifs.map{|elsif_| elsif_.accept(self)}
+      elsifs_=if_.elsifs.map{|elsif_| elsif_.accept(self)} if if_.elsifs.any?
       else_=if_.else_.accept(self) if if_.else_
       code=Code.new
       code << "#{label}if #{cond} then"
@@ -304,6 +312,7 @@ module Vertigo
       code << "else"
       code.indent=2
       code << body
+      code.indent=0
       code
     end
 
@@ -477,7 +486,7 @@ module Vertigo
       label=process.label.accept(self) if process.label
       sensitity=process.sensitivity.accept(self,args) if process.sensitivity
       sensitity="(#{sensitity})" if sensitity
-      body=process.body.accept(self,args)
+      body=process.body.accept(self,args) if process.body
       code << "#{label}process#{sensitity}"
       code.indent=2
       process.decls.each{|decl_| code << decl_.accept(self,args)}
@@ -613,6 +622,10 @@ module Vertigo
 
     def visitIntLit(intlit,args=nil)
       intlit.tok.accept(self,args)
+    end
+
+    def visitCharLit(lit,args=nil)
+      lit.tok.accept(self,args)
     end
 
     def visitSelectedName(selectedname,args=nil)
