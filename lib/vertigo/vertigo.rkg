@@ -320,6 +320,9 @@
 - CharLit:
   - tok
 
+- BoolLit:
+  - tok
+
 - selectedName:
   - lhs
   - rhs

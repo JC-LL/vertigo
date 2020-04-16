@@ -99,9 +99,9 @@ module Vertigo
       code.newline
       code << "package #{name} is"
       code.indent=2
-      code.newline
       package_.decls.each{|decl_| code << decl_.accept(self,args)}
       code.indent=0
+      code.newline
       code << "end #{name};"
       code.newline
       code
@@ -187,6 +187,7 @@ module Vertigo
       code=Code.new
       code.newline
       code << "type #{name} is #{type_spec};"
+      code.newline
       code
     end
 
@@ -196,6 +197,7 @@ module Vertigo
       code=Code.new
       code.newline
       code << "subtype #{name} is #{type_spec};"
+      code.newline
       code
     end
 
@@ -628,6 +630,10 @@ module Vertigo
       lit.tok.accept(self,args)
     end
 
+    def visitBoolLit(boollit_,args=nil)
+      boollit_.tok.accept(self,args)
+    end
+
     def visitSelectedName(selectedname,args=nil)
       lhs=selectedname.lhs.accept(self,args)
       rhs=selectedname.rhs.accept(self,args)
@@ -713,18 +719,21 @@ module Vertigo
     def visitAggregate aggregate,args=nil
       elems=(elements=aggregate.elements).map{|e| e.accept(self)}
       # here we prototype a multiline method, for long aggregates
-      ret="(#{elems.join(',')})"
-      if ret.size>40
+      ret="\n\t(\n\t#{elems.join(',')})"
+      if ret.size>5
         klasses=elements.map{|e| e.class}
-        if klasses.include?(Aggregate)
+        #if klasses.include?(Aggregate)
           code=Code.new
           code << '('
-          code.indent=col=aggregate.pos.last #given by parser.
-          elements.each{|e| code << e.accept(self)+","}
+          code.indent=col=5
+          elements.each{|e|
+            code << e.accept(self)+","
+          }
           code.indent=col-2
+          code.newline
           code << ")"
           ret=code.finalize
-        end
+        #end
       end
       ret
     end

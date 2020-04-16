@@ -549,6 +549,13 @@ module Vertigo
     end
   end
    
+  class BoolLit < AstNode
+    attr_accessor :tok
+    def initialize tok=nil
+      @tok=tok
+    end
+  end
+   
   class SelectedName < AstNode
     attr_accessor :lhs,:rhs
     def initialize lhs=nil,rhs=nil

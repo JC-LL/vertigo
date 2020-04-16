@@ -403,6 +403,10 @@ module Vertigo
       charlit_.tok.accept(self,args)
     end
      
+    def visitBoolLit(boollit_,args=nil)
+      boollit_.tok.accept(self,args)
+    end
+     
     def visitSelectedName(selectedname_,args=nil)
       selectedname_.lhs.accept(self,args)
       selectedname_.rhs.accept(self,args)

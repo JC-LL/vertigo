@@ -1241,7 +1241,7 @@ module Vertigo
         when :string_literal,:bit_string_literal,:based_literal
           ret=acceptIt
         when :true,:false
-          ret=acceptIt
+          ret=BoolLit.new(acceptIt)
         when :others
           ret=acceptIt
         when :open
