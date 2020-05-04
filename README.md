@@ -13,17 +13,20 @@ ruby run_test_parser.rb
 ![Alt text](running test)
 <img src="./doc/run_test.svg">
 
-## How to build ?
-      gem build vertigo.gemspec
-
-Depending on the current version, this command will produce a Ruby gem  like vertigo-x.y.z.gem
-
 ## How to install ?
-    gem install vertigo-x.y.z.gem --local
+      gem install vertigo_vhdl
 
-## Why isn't Vertigo on RubyGems ?
-  Well, I found that there is a gem named 'vertigo' that already exists for SOAP application
+   Please note the name ! Not vertigo, but **vertigo_vhdl**
+
+## How to build and install from github ?
+    gem build vertigo.gemspec
+    gem install vertigo_vhdl-x.y.z.gem --local
+
+
+## Features :
+  - VHDL parsing and pretty printer
+  - Testbench generator
+  - more to come !
 
 ## Contact the author !
   jean-christophe.le_lann@ensta-bretagne.fr
-  
