@@ -17,6 +17,9 @@ module Vertigo
         if args[:parse_only]
           filename=args[:vhdl_file]
           ok=compiler.parse(filename)
+        elsif args[:gen_tb]
+          filename=args[:vhdl_file]
+          ok=compiler.gen_tb(filename)
         elsif filename=args[:vhdl_file]
           ok=compiler.compile(filename)
         else
@@ -73,6 +76,10 @@ module Vertigo
 
       parser.on("--draw_ast", "draw abstract syntax tree (AST)") do
         options[:draw_ast] = true
+      end
+
+      parser.on("--gen_tb", "generates a testbench for the first entity/arch pair found") do
+        options[:gen_tb] = true
       end
 
       parser.on("--dummy_transform", "dummy ast transform") do

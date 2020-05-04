@@ -52,9 +52,9 @@ module Vertigo
     #   "(#{@kind.to_s.ljust(15,' ')},'#{@val}',#{@pos})"
     # end
 
-    # def to_s
-    #   val
-    # end
+    def str
+      val
+    end
 
     def clone
       Token.new([@kind,@val,@pos])

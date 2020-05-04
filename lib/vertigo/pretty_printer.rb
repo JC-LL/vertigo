@@ -230,8 +230,9 @@ module Vertigo
 
     def visitArrayDimDecl(arraydimdecl_,args=nil)
       type_mark=arraydimdecl_.type_mark.accept(self)+" " if arraydimdecl_.type_mark
+      type_mark_range="#{type_mark}range " if arraydimdecl_.type_mark
       range=arraydimdecl_.range.accept(self,args)
-      "#{type_mark}range #{range}"
+      "#{type_mark_range}#{range}"
     end
 
     def visitConstant cst,args=nil
