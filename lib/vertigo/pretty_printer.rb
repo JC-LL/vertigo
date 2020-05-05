@@ -427,6 +427,7 @@ module Vertigo
       label=inst.label.accept(self) if inst.label
       full_name=inst.full_name.accept(self)
       arch_name=inst.arch_name.accept(self) if inst.arch_name
+      arch_name="(#{arch_name})" if inst.arch_name
       gen_map  =inst.generic_map.accept(self) if inst.generic_map
       port_map =inst.port_map.accept(self) if inst.port_map
       code << "#{label}entity #{full_name}#{arch_name}"

@@ -46,7 +46,7 @@ module Vertigo
       entity,arch=entity_arch
       inputs=entity.ports.select{|port| port.is_a?(Input)}
       @clk = inputs.sort_by{|input| levenshtein_distance(input.name.str,"clk")}.first
-      @rst = inputs.sort_by{|input| levenshtein_distance(input.name.str,"reset")}.first
+      @rst = inputs.sort_by{|input| levenshtein_distance(input.name.str,"reset_n")}.first
       puts "\t-most probable clk   : #{@clk.name.str}"
       puts "\t-most probable reset : #{@rst.name.str}"
       @max_length_str=entity.ports.map{|port| port.name.str.size}.max

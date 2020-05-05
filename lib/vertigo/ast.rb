@@ -84,4 +84,10 @@ module Vertigo
     end
   end
 
+  class Architecture < AstNode
+    def << e
+      @body << e
+    end
+  end
+
 end

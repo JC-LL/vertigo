@@ -723,7 +723,12 @@ module Vertigo
     def parse_entity_instanciation
       ret=EntityInstance.new
       expect :entity
-      ret.full_name=parse_term # ENSURE :selected_name
+      ret.full_name=parse_term # now ENSURE :selected_name
+      case fc=ret.full_name
+      when FuncCall
+        ret.full_name=fc.name
+        ret.arch_name=fc.actual_args.first
+      end
       if showNext.is_a?(:lparen)
         acceptIt
         ret.arch_name=Ident.new(expect :ident)
