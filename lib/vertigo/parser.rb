@@ -197,11 +197,16 @@ module Vertigo
       }
     end
 
+    # do accept :: signal a_outputs : A_lib.A_pkg.outputs_t;
     def parse_type
       case showNext.kind
       when :ident
         type=NamedType.new
         type.ident=Ident.new(acceptIt)
+        while selected_name=selected_name?
+          selected_name.lhs=type.ident
+          type.ident=selected_name
+        end
       else
         type=StdType.new
         type.ident=Ident.new(acceptIt) # natural,...
