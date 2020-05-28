@@ -16,7 +16,7 @@ module Vertigo
       vhdl_tb=gen_code()
       @tb_name=@entity_name+"_tb"
       tb_filename=@tb_name+".vhd"
-      File.open(tb_filename,'w'){|f| f.puts vhdl_tb.finalize}
+      File.open(tb_filename,'w'){|f| f.puts vhdl_tb}
       puts "=> generated testbench : #{tb_filename}"
     end
 
@@ -70,7 +70,7 @@ module Vertigo
       code << gen_stim_process
       code.indent=0
       code << "end bhv;"
-      code
+      code.finalize
     end
 
     def gen_header
@@ -105,10 +105,14 @@ module Vertigo
       code << "port map ("
       code.indent=4
 
-      @entity.ports.each do |port|
+      @entity.ports.each_with_index do |port,idx|
         port_name=port.name.str.ljust(@max_length_str)
         port_type=port.type.str
-        code << "#{port_name} => #{port_name},"
+        if idx < @entity.ports.size-1
+          code << "#{port_name} => #{port_name},"
+        else
+          code << "#{port_name} => #{port_name}"
+        end
       end
       code.indent=2
       code << ");"
