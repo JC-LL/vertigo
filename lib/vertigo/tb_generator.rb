@@ -50,7 +50,7 @@ module Vertigo
       code << "procedure wait_cycles(n : natural) is "
       code << "begin"
       code.indent=4
-      code << "for i in 0 to n loop"
+      code << "for i in 0 to n-1 loop"
       code.indent=6
       code << "wait until rising_edge(#{@clk_name});"
       code.indent=4
@@ -89,7 +89,7 @@ module Vertigo
       code << line
       code << comment("clock and reset")
       code << line
-      code << "#{@reset_name} <= '0','1' after 666 ns;"
+      code << "#{@reset_name} <= '0','1' after 123 ns;"
       code.newline
       code << "#{@clk_name} <= not(#{@clk_name}) after HALF_PERIOD when running else #{@clk_name};"
       code
@@ -131,7 +131,8 @@ module Vertigo
       code << "report \"running testbench for #{@entity_name}(#{@arch_name})\";"
       code << "report \"waiting for asynchronous reset\";"
       code << "wait until #{@reset_name}='1';"
-      code << "wait_cycles(100);"
+      code << "wait_cycles(10);"
+      code << "wait_cycles(10);"
       code << "report \"end of simulation\";"
       code << "running <= false;"
       code << "wait;"
