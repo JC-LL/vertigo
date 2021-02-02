@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
                    "lib/vertigo/runner.rb",
                    "lib/vertigo/token.rb",
                    "lib/vertigo/tb_generator.rb",
-                   "lib/vertigo/template.tb.vhd",
                    "lib/vertigo/version.rb",
                    "lib/vertigo/vertigo.rkg",
                    "lib/vertigo/visitor_vertigo_rkgen.rb",
