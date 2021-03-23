@@ -3,7 +3,7 @@ VHDL parser written in Ruby.
 
 Vertigo is today able to parse a large subset of VHDL'93.
 
-Vertigo aims at providing a managable tool for VHDL inspection and transformation.
+Vertigo aims at providing a managable tool for VHDL inspection and transformations.
 
 A "tests" directory contains various VHDL files that can be parsed.
 To run the test in this directory, run :
