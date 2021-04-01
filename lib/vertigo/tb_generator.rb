@@ -1,9 +1,12 @@
 module Vertigo
 
   class TestBenchGenerator
+
     attr_accessor :ast
     attr_accessor :entity,:arch
     attr_accessor :clk,:rst
+    attr_accessor :options
+
     def initialize options={}
       @options=options
       @supplemental_libs_h=options[:supplemental_libs_h]||{}
@@ -17,7 +20,8 @@ module Vertigo
       @tb_name=@entity_name+"_tb"
       tb_filename=@tb_name+".vhd"
       File.open(tb_filename,'w'){|f| f.puts vhdl_tb}
-      puts "=> generated testbench : #{tb_filename}"
+      puts "=> generated testbench : #{tb_filename}" unless options[:mute]
+      return tb_filename
     end
 
     def line n=80
@@ -157,27 +161,27 @@ module Vertigo
         puts msg="ERROR : no entity found"
         raise msg
       end
-      puts "=> found entity '#{entity.name.str}'"
+      puts "=> found entity '#{entity.name.str}'" unless options[:mute]
       @arch=ast.design_units.find{|du| du.is_a? Architecture}
       if @arch.nil?
         puts msg="ERROR : no architecture found"
         raise msg
       end
 
-      puts "=> found architecture '#{arch.name.str}'"
+      puts "=> found architecture '#{arch.name.str}'" unless options[:mute]
       @entity_name=@entity.name.str
       @arch_name=@arch.name.str
       [@entity,@arch]
     end
 
     def detecting_clk_and_reset entity_arch
-      puts "=> detecting clock and reset"
+      puts "=> detecting clock and reset" unless options[:mute]
       entity,arch=entity_arch
       inputs=entity.ports.select{|port| port.is_a?(Input)}
       @clk = inputs.sort_by{|input| levenshtein_distance(input.name.str,"clk")}.first
       @rst = inputs.sort_by{|input| levenshtein_distance(input.name.str,"reset_n")}.first
-      puts "\t-most probable clk   : #{@clk.name.str}"
-      puts "\t-most probable reset : #{@rst.name.str}"
+      puts "\t-most probable clk   : #{@clk.name.str}" unless options[:mute]
+      puts "\t-most probable reset : #{@rst.name.str}" unless options[:mute]
       @max_length_str=entity.ports.map{|port| port.name.str.size}.max
       @excluded=[@clk,@rst]
       @reset_name=@rst.name.str
