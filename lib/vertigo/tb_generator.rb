@@ -145,7 +145,7 @@ module Vertigo
       code << "report \"waiting for asynchronous reset\";"
       code << "wait until #{@reset_name}='1';"
       code << "wait_cycles(10);"
-      code << "wait_cycles(10);"
+      code << "wait_cycles(200);"
       code << "report \"end of simulation\";"
       code << "running <= false;"
       code << "wait;"
