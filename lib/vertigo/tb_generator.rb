@@ -113,7 +113,9 @@ module Vertigo
       code << line
       code << comment("Design Under Test")
       code << line
-      code << "dut : entity work.#{@entity_name}(#{@arch_name})"
+      str="dut : entity work.#{@entity_name}"
+      str+="(#{@arch_name})" if @arch_name
+      code << str
       code.indent=2
       code << "port map ("
       code.indent=4
@@ -164,13 +166,13 @@ module Vertigo
       puts "=> found entity '#{entity.name.str}'" unless options[:mute]
       @arch=ast.design_units.find{|du| du.is_a? Architecture}
       if @arch.nil?
-        puts msg="ERROR : no architecture found"
-        raise msg
+        puts msg="WARNING : no architecture found"
+      else
+        puts "=> found architecture '#{arch.name.str}'" unless options[:mute]
       end
 
-      puts "=> found architecture '#{arch.name.str}'" unless options[:mute]
       @entity_name=@entity.name.str
-      @arch_name=@arch.name.str
+      @arch_name=@arch.name.str if @arch
       [@entity,@arch]
     end
 
