@@ -801,12 +801,25 @@ module Vertigo
       expect :if
       ret.cond=parse_expression
       expect :generate
-      if showNext.is_a?(:begin) # seems optional!
+      # maybe local declarations :
+      if showNext.is_a? [:signal,:constant]
+        while showNext.is_not_a?(:begin)
+          parse_decls
+        end
+      end
+
+      #...or simply "begin"
+      if showNext.is_a?(:begin)
         acceptIt
       end
-      ret.body=parse_concurrent_stmt
+      ret.body=body=Body.new
+
+      while !showNext.is_a?(:end)
+        body << parse_concurrent_stmt
+      end
       expect :end
       expect :generate
+      maybe :ident
       expect :semicolon
       ret
     end
@@ -818,16 +831,26 @@ module Vertigo
       expect :in
       ret.range=parse_discrete_range
       expect :generate
-      while showNext.is_not_a?(:begin)
-        parse_decls
+
+      # maybe local declarations :
+      if showNext.is_a? [:signal,:constant]
+        while showNext.is_not_a?(:begin)
+          parse_decls
+        end
+      end
+
+      #...or simply "begin"
+      if showNext.is_a?(:begin)
+        acceptIt
       end
       ret.body=body=Body.new
-      expect :begin
+
       while !showNext.is_a?(:end)
         body << parse_concurrent_stmt
       end
       expect :end
       expect :generate
+      maybe :ident
       expect :semicolon
       ret
     end
