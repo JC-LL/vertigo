@@ -13,15 +13,19 @@ module Vertigo
     end
 
     def generate_from ast
-      @ast=ast
-      entity_arch=find_entity_arch()
-      detecting_clk_and_reset(entity_arch)
-      vhdl_tb=gen_code()
-      @tb_name=@entity_name+"_tb"
-      tb_filename=@tb_name+".vhd"
-      File.open(tb_filename,'w'){|f| f.puts vhdl_tb}
-      puts "=> generated testbench : #{tb_filename}" unless options[:mute]
-      return tb_filename
+      begin
+        @ast=ast
+        entity_arch=find_entity_arch()
+        detecting_clk_and_reset(entity_arch)
+        vhdl_tb=gen_code()
+        @tb_name=@entity_name+"_tb"
+        tb_filename=@tb_name+".vhd"
+        File.open(tb_filename,'w'){|f| f.puts vhdl_tb}
+        puts "=> generated testbench : #{tb_filename}" unless options[:mute]
+        return tb_filename
+      rescue Exception => e
+        puts e.backtrace
+      end
     end
 
     def line n=80
@@ -184,7 +188,18 @@ module Vertigo
       @rst = inputs.sort_by{|input| levenshtein_distance(input.name.str,"reset_n")}.first
       puts "\t-most probable clk   : #{@clk.name.str}" unless options[:mute]
       puts "\t-most probable reset : #{@rst.name.str}" unless options[:mute]
+
       @max_length_str=entity.ports.map{|port| port.name.str.size}.max
+
+      print "\t-validate [Y/n] ? "
+      answer=$stdin.gets.chomp
+      if answer=="n"
+        puts "ok, switching to 'clk' and 'reset_n'"
+        @reset_name="reset_n"
+        @clk_name="clk"
+        @excluded=[]
+        return
+      end
       @excluded=[@clk,@rst]
       @reset_name=@rst.name.str
       @clk_name=@clk.name.str
