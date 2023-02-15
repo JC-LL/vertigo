@@ -74,7 +74,9 @@ module Vertigo
       code << "  s <=not(s);"
       code << "end procedure;"
       code.newline
-      @entity.ports.each do |port|
+      # bug discovered by a student : when he forgets "in" or "out" in entity port...
+      # fix : compact
+      @entity.ports.compact.each do |port|
         port_name=port.name.str.ljust(@max_length_str)
         port_type=port.type.str
         code << "signal #{port_name} : #{port_type};" unless @excluded.include?(port)
@@ -124,7 +126,7 @@ module Vertigo
       code << "port map ("
       code.indent=4
 
-      @entity.ports.each_with_index do |port,idx|
+      @entity.ports.compact.each_with_index do |port,idx|
         port_name=port.name.str.ljust(@max_length_str)
         port_type=port.type.str
         if idx < @entity.ports.size-1
@@ -189,7 +191,9 @@ module Vertigo
       puts "\t-most probable clk   : #{@clk.name.str}" unless options[:mute]
       puts "\t-most probable reset : #{@rst.name.str}" unless options[:mute]
 
-      @max_length_str=entity.ports.map{|port| port.name.str.size}.max
+      # bug discovered by a student : when he forgets "in" or "out" in port !
+      # fix : .compact
+      @max_length_str=entity.ports.compact.map{|port| port.name.str.size}.max
 
       print "\t-validate [Y/n] ? "
       answer=$stdin.gets.chomp

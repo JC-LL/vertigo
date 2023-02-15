@@ -1259,6 +1259,7 @@ module Vertigo
 
 
     def parse_term
+      #pp showNext
       if showNext.is_a? [:ident,:dot,:integer,:natural,:positive,:decimal_literal,:based_literal,:char_literal,:string_literal,:true,:false,:bit_string_literal,:lparen,:others,:abs,:not,:sub,:open]
         case showNext.kind
         when :ident
