@@ -669,6 +669,9 @@ module Vertigo
       if showNext.is_a?(:lparen)
         ret.sensitivity=parse_sensitivity_list
       end
+      if showNext.is_a? :is
+        acceptIt
+      end
       ret.decls=parse_decls
       ret.decls.flatten!
       expect :begin
