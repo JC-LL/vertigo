@@ -68,9 +68,9 @@ module Vertigo
       code.newline
       code << "procedure toggle(signal s : inout std_logic) is"
       code << "begin"
-      code << "  wait until rising_edge(clk);"
+      code << "  wait until rising_edge(#{@clk_name});"
       code << "  s <=not(s);"
-      code << "  wait until rising_edge(clk);"
+      code << "  wait until rising_edge(#{@clk_name});"
       code << "  s <=not(s);"
       code << "end procedure;"
       code.newline
