@@ -94,8 +94,6 @@ module Vertigo
         options[:mute]=true
       end
 
-
-
       parser.on("-v", "--version", "Show version number") do
         puts VERSION
         exit(true)

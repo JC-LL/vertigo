@@ -15,7 +15,7 @@ module Vertigo
     end
 
     def lex filename
-      unless File.exists?(filename)
+      unless File.exist?(filename)
         raise "ERROR : cannot find file '#{filename}'"
       end
       begin
