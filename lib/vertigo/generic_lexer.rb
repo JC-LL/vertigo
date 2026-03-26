@@ -27,7 +27,7 @@ class GenericLexer
   end
 
   def next_token
-    return [nil,nil,nil] if @ssc.empty?
+    return [nil,nil,nil] if @ssc.eos? # .empty obsolete
     tok = get_token
     return (tok.is_a? :skip) ? next_token : tok
   end
